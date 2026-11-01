@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Phone, Mail, MapPin, Facebook, Instagram, Youtube, CreditCard, Truck, Shield, Clock } from 'lucide-react';
+import { Phone, Mail, MapPin, CreditCard, Truck, Shield, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import ShopLogo from './ShopLogo';
 
@@ -19,8 +19,8 @@ export default function Footer() {
                 <Truck className="w-4 h-4 md:w-5 md:h-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium text-xs md:text-sm">{t('দ্রুত ডেলিভারি', 'Fast Delivery')}</p>
-                <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">{t('সারাদেশে', 'Nationwide')}</p>
+                <p className="font-medium text-xs md:text-sm">{t('ডেলিভারির তথ্য', 'Delivery details')}</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">{t('চেকআউটে দেখুন', 'See at checkout')}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 md:gap-3">
@@ -28,8 +28,8 @@ export default function Footer() {
                 <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium text-xs md:text-sm">{t('নিরাপদ পেমেন্ট', 'Secure Payment')}</p>
-                <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">{t('বিকাশ ও COD', 'bKash & COD')}</p>
+                <p className="font-medium text-xs md:text-sm">{t('পেমেন্ট অপশন', 'Payment options')}</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">{t('চেকআউটে দেখুন', 'See at checkout')}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 md:gap-3">
@@ -37,17 +37,17 @@ export default function Footer() {
                 <Shield className="w-4 h-4 md:w-5 md:h-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium text-xs md:text-sm">{t('নিশ্চিত মান', 'Quality Assured')}</p>
-                <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">{t('১০০% অরিজিনাল', '100% Original')}</p>
+                <p className="font-medium text-xs md:text-sm">{t('অর্ডার ট্র্যাকিং', 'Order tracking')}</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">{t('আইডি ও ফোন দিয়ে', 'With ID and phone')}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 md:gap-3">
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Clock className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium text-xs md:text-sm">{t('২৪/৭ সাপোর্ট', '24/7 Support')}</p>
-                <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">{t('যেকোনো সময়', 'Anytime')}</p>
+                <p className="font-medium text-xs md:text-sm">{t('কাস্টমার সহায়তা', 'Customer support')}</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">{t('চ্যাট ও যোগাযোগ', 'Chat and contact')}</p>
               </div>
             </div>
           </div>
@@ -65,19 +65,8 @@ export default function Footer() {
               <ShopLogo size="md" className="hidden md:flex" />
             </Link>
             <p className="text-muted-foreground text-xs md:text-sm mb-3 md:mb-4 line-clamp-2 md:line-clamp-none">
-              {t('বাংলাদেশের সেরা অনলাইন শপিং প্ল্যাটফর্ম।', 'Bangladesh\'s premier online shopping platform.')}
+              {t('বাংলাদেশে পণ্য ব্রাউজ করুন, অর্ডার করুন এবং অর্ডারের অবস্থা ট্র্যাক করুন।', 'Browse products, place orders, and track their status in Bangladesh.')}
             </p>
-            <div className="flex gap-2 md:gap-3">
-              <a href="#" className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Facebook className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              </a>
-              <a href="#" className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Instagram className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              </a>
-              <a href="#" className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Youtube className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}

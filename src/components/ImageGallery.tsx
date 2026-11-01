@@ -18,7 +18,12 @@ export default function ImageGallery({ images, alt, discountPercentage }: ImageG
   const touchStartX = useRef<number | null>(null);
   const imageRef = useRef<HTMLDivElement>(null);
 
-  const displayImages = images.length > 0 ? images : ['/placeholder.svg'];
+  const displayImages = images.length > 0 ? images : ['/product-placeholder.svg'];
+  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    if (!event.currentTarget.currentSrc.endsWith('/product-placeholder.svg')) {
+      event.currentTarget.src = '/product-placeholder.svg';
+    }
+  };
 
   const goToPrevious = useCallback(() => {
     setSelectedIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1));
@@ -83,6 +88,7 @@ export default function ImageGallery({ images, alt, discountPercentage }: ImageG
               transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
             } : undefined}
             draggable={false}
+            onError={handleImageError}
           />
           
           {/* Discount Badge */}
@@ -152,7 +158,7 @@ export default function ImageGallery({ images, alt, discountPercentage }: ImageG
                     : "border-transparent hover:border-border"
                 )}
               >
-                <img src={img} alt={`${alt} - ${idx + 1}`} className="w-full h-full object-cover" />
+                <img src={img} alt={`${alt} - ${idx + 1}`} className="w-full h-full object-cover" onError={handleImageError} />
               </button>
             ))}
           </div>
@@ -176,6 +182,7 @@ export default function ImageGallery({ images, alt, discountPercentage }: ImageG
               src={displayImages[selectedIndex]}
               alt={alt}
               className="max-w-full max-h-full object-contain"
+              onError={handleImageError}
             />
 
             {displayImages.length > 1 && (
@@ -212,7 +219,7 @@ export default function ImageGallery({ images, alt, discountPercentage }: ImageG
                       : "border-transparent opacity-60 hover:opacity-100"
                   )}
                 >
-                  <img src={img} alt={`${alt} - ${idx + 1}`} className="w-full h-full object-cover" />
+                  <img src={img} alt={`${alt} - ${idx + 1}`} className="w-full h-full object-cover" onError={handleImageError} />
                 </button>
               ))}
             </div>

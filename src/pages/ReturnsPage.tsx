@@ -35,7 +35,7 @@ export default function ReturnsPage() {
             </div>
             <div>
               <p className="font-medium">{t('সহজ প্রক্রিয়া', 'Easy Process')}</p>
-              <p className="text-xs text-muted-foreground">{t('ঝামেলামুক্ত', 'Hassle-free')}</p>
+              <p className="text-xs text-muted-foreground">{t('যোগ্যতা ও শর্ত দেখুন', 'Check eligibility and terms')}</p>
             </div>
           </div>
           <div className="bg-card border rounded-xl p-4 flex items-center gap-3">
@@ -43,8 +43,8 @@ export default function ReturnsPage() {
               <Package className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="font-medium">{t('ফ্রি পিকআপ', 'Free Pickup')}</p>
-              <p className="text-xs text-muted-foreground">{t('ঢাকায়', 'In Dhaka')}</p>
+              <p className="font-medium">{t('আসল প্যাকেজিং', 'Original packaging')}</p>
+              <p className="text-xs text-muted-foreground">{t('রিটার্নের শর্ত দেখুন', 'See return terms')}</p>
             </div>
           </div>
         </div>

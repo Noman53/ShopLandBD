@@ -178,7 +178,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const images = product.images?.length ? product.images : ['/placeholder.svg'];
+  const images = product.images?.length ? product.images : ['/product-placeholder.svg'];
   const discountPercentage = product.discount_price
     ? Math.round(((Number(product.price) - Number(product.discount_price)) / Number(product.price)) * 100)
     : 0;
@@ -240,12 +240,12 @@ export default function ProductDetailPage() {
 
 
   return (
-    <div className="min-h-screen bg-background pb-32 md:pb-8">
+    <div className="page-enter min-h-screen bg-background pb-32 md:pb-8">
       <SEO
         title={productName}
         description={`${productName} — ${formatPrice(product.discount_price ? Number(product.discount_price) : Number(product.price), language)}। ShopLandBD-তে অর্ডার করুন।`}
         canonical={`/products/${product.id}`}
-        ogImage={images[0] !== '/placeholder.svg' ? images[0] : undefined}
+        ogImage={images[0] !== '/product-placeholder.svg' ? images[0] : undefined}
         ogType="product"
         jsonLd={[
           buildProductSchema({
@@ -286,17 +286,19 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid md:grid-cols-2 gap-8">
+      <div className="container mx-auto px-4 py-6 md:py-10">
+        <div className="product-detail-layout grid items-start gap-6 md:grid-cols-2 md:gap-8">
           {/* Image Gallery with Zoom */}
+          <div className="scroll-reveal">
           <ImageGallery 
             images={images} 
             alt={productName}
             discountPercentage={discountPercentage}
           />
+          </div>
 
           {/* Product Info */}
-          <div>
+          <div className="product-detail-panel scroll-reveal">
             {/* Category */}
             {product.categories && (
               <Link

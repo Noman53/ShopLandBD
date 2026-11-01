@@ -371,7 +371,7 @@ export default function AdminChat() {
                   {aiConversations.length > 0 && (
                     <div className="px-3 py-1.5 bg-muted/30">
                       <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                        {t('ভার্চুয়াল সহায়তা', 'Virtual support')} ({aiConversations.length})
+                        {t('স্বয়ংক্রিয় সহায়তা', 'Automated support')} ({aiConversations.length})
                       </p>
                     </div>
                   )}

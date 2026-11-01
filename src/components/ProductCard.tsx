@@ -64,7 +64,7 @@ export default function ProductCard({
       price,
       discount_price,
       quantity: 1,
-      image: images[0] || '/placeholder.svg',
+      image: images[0] || '/product-placeholder.svg',
     });
 
     toast({
@@ -90,15 +90,20 @@ export default function ProductCard({
   const priceDisplay = (amount: number) => formatPrice(amount, language);
 
   return (
-    <Link to={`/products/${id}`} className="block">
+    <Link to={`/products/${id}`} className="product-card-link block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4">
       <div className="product-card group">
         {/* Image */}
-        <div className="relative aspect-square overflow-hidden bg-secondary/50">
+        <div className="product-card-image relative aspect-square overflow-hidden">
           <img
-            src={images[0] || '/placeholder.svg'}
+            src={images[0] || '/product-placeholder.svg'}
             alt={language === 'bn' ? name_bn : name_en}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-full object-cover"
             loading="lazy"
+            onError={(event) => {
+              if (!event.currentTarget.currentSrc.endsWith('/product-placeholder.svg')) {
+                event.currentTarget.src = '/product-placeholder.svg';
+              }
+            }}
           />
           
           {/* Discount Badge */}
@@ -111,7 +116,8 @@ export default function ProductCard({
           {/* Wishlist Button */}
           <button
             onClick={handleToggleWishlist}
-            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-background transition-colors"
+            aria-label={isWishlisted ? t('উইশলিস্ট থেকে সরান', 'Remove from wishlist') : t('উইশলিস্টে যোগ করুন', 'Add to wishlist')}
+            className="absolute top-3 right-3 w-10 h-10 rounded-full border border-white/70 bg-card/85 backdrop-blur-md flex items-center justify-center shadow-md hover:bg-card hover:scale-105 transition-all"
           >
             <Heart 
               className={cn(
@@ -124,7 +130,7 @@ export default function ProductCard({
           {/* Out of Stock Overlay */}
           {stock_quantity < 1 && (
             <div className="absolute inset-0 bg-foreground/60 flex items-center justify-center">
-              <span className="text-background font-bold text-sm px-4 py-2 bg-foreground/80 rounded-full">
+              <span className="text-background font-bold text-sm px-4 py-2 bg-foreground/85 backdrop-blur-sm rounded-full">
                 {t('স্টক শেষ', 'Out of Stock')}
               </span>
             </div>
@@ -140,7 +146,7 @@ export default function ProductCard({
                       <Button
                         size="icon"
                         variant="secondary"
-                        className="cursor-default shadow-lg"
+                        className="cursor-default shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-200"
                         disabled
                       >
                         <Info className="w-4 h-4" />
@@ -156,7 +162,7 @@ export default function ProductCard({
               <Button
                 onClick={handleAddToCart}
                 size="icon"
-                className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary hover:bg-primary/90 shadow-lg"
+                className="absolute bottom-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 translate-y-0 md:translate-y-2 md:group-hover:translate-y-0 transition-all duration-200 bg-primary hover:bg-primary/90 shadow-lg"
               >
                 <Plus className="w-4 h-4" />
               </Button>
@@ -165,13 +171,13 @@ export default function ProductCard({
         </div>
 
         {/* Content */}
-        <div className="p-4">
-          <h3 className="font-medium text-sm line-clamp-2 mb-2 min-h-[40px]">
+        <div className="product-card-content p-3.5 sm:p-4">
+          <h3 className="font-semibold text-[13px] sm:text-sm leading-snug line-clamp-2 mb-3 min-h-[2.5rem] group-hover:text-primary transition-colors">
             {language === 'bn' ? name_bn : name_en}
           </h3>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
               {discount_price ? (
                 <>
                   <span className="price-current">
@@ -195,7 +201,7 @@ export default function ProductCard({
                       <Button
                         size="sm"
                         variant="outline"
-                        className="md:hidden h-8 w-8 p-0"
+                        className="md:hidden h-10 w-10 p-0 rounded-xl"
                         disabled
                       >
                         <Info className="w-4 h-4 text-muted-foreground" />
@@ -211,7 +217,8 @@ export default function ProductCard({
                   onClick={handleAddToCart}
                   size="sm"
                   variant="secondary"
-                  className="md:hidden h-8 w-8 p-0"
+                  aria-label={t('কার্টে যোগ করুন', 'Add to cart')}
+                  className="md:hidden h-10 w-10 p-0 rounded-xl shadow-sm"
                 >
                   <ShoppingCart className="w-4 h-4" />
                 </Button>

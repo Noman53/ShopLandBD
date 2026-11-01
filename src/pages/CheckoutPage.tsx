@@ -377,7 +377,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-secondary/30 safe-bottom">
+    <div className="page-enter min-h-screen bg-background safe-bottom">
       <SEO title={t('চেকআউট', 'Checkout')} description="ShopLandBD-এ নিরাপদে অর্ডার সম্পন্ন করুন। ক্যাশ অন ডেলিভারি বা বিকাশ পেমেন্ট বেছে নিন।" canonical="/checkout" noindex />
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         {/* Header */}
@@ -406,7 +406,7 @@ export default function CheckoutPage() {
           {/* Left Column - Forms */}
           <div className="lg:col-span-2 space-y-6">
             {/* Shipping Information */}
-            <div className="bg-card border rounded-xl p-6">
+            <div className="store-card bg-card border p-5 sm:p-6">
               <h2 className="text-lg font-semibold mb-4">
                 {t('শিপিং তথ্য', 'Shipping Information')}
               </h2>
@@ -497,7 +497,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Payment Method */}
-            <div className="bg-card border rounded-xl p-6">
+            <div className="store-card bg-card border p-5 sm:p-6">
               <h2 className="text-lg font-semibold mb-4">
                 {t('পেমেন্ট পদ্ধতি', 'Payment Method')}
               </h2>
@@ -641,7 +641,7 @@ export default function CheckoutPage() {
 
           {/* Right Column - Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-card border rounded-xl p-6 sticky top-20">
+            <div className="store-card bg-card border p-5 sm:sticky sm:top-20 sm:p-6">
               <h2 className="text-lg font-semibold mb-4">
                 {t('অর্ডার সামারি', 'Order Summary')}
               </h2>

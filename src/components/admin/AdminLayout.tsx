@@ -48,6 +48,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
+import SEO from '@/components/SEO';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -187,7 +188,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-secondary/30 flex">
+    <div className="admin-shell min-h-screen flex">
+      <SEO
+        title={language === 'bn'
+          ? breadcrumbMap[location.pathname]?.bn || 'অ্যাডমিন'
+          : breadcrumbMap[location.pathname]?.en || 'Admin'}
+        noindex
+      />
       {/* Mobile Menu Button */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -199,7 +206,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed md:sticky top-0 inset-y-0 left-0 z-40 bg-card border-r flex flex-col h-screen transform transition-all duration-300 ease-in-out',
+          'admin-sidebar fixed md:sticky top-0 inset-y-0 left-0 z-40 bg-card border-r flex flex-col h-screen transform transition-all duration-300 ease-in-out',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
           sidebarCollapsed ? 'w-[72px]' : 'w-64'
         )}
@@ -393,7 +400,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Main Content */}
       <main className="flex-1 min-h-screen flex flex-col">
         {/* Top Bar */}
-        <header className="h-16 bg-card border-b flex items-center justify-between px-4 md:px-6 sticky top-0 z-20">
+        <header className="admin-topbar h-16 bg-card border-b flex items-center justify-between px-4 md:px-6 sticky top-0 z-20">
           {/* Left: Breadcrumbs (desktop) */}
           <div className="hidden md:block">
             <Breadcrumb>
@@ -484,7 +491,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 p-4 md:p-6 lg:p-8">
+        <div className="admin-page-content flex-1 p-4 md:p-6 lg:p-8">
           {children}
         </div>
       </main>

@@ -16,7 +16,7 @@ interface SEOProps {
 
 export default function SEO({
   title,
-  description = 'ShopLandBD — বাংলাদেশের বিশ্বস্ত অনলাইন শপিং প্ল্যাটফর্ম। সেরা দামে পণ্য কিনুন, ক্যাশ অন ডেলিভারি ও বিকাশ পেমেন্ট সুবিধা।',
+  description = 'ShopLandBD-তে বাংলাদেশে পণ্য ব্রাউজ ও অর্ডার করুন। চেকআউটে ডেলিভারি ও পেমেন্টের তথ্য দেখুন এবং অর্ডার ট্র্যাক করুন।',
   canonical,
   ogImage = DEFAULT_OG_IMAGE,
   ogType = 'website',
@@ -72,6 +72,24 @@ export function buildOrganizationSchema() {
       availableLanguage: ['Bengali', 'English'],
     },
     sameAs: [],
+  };
+}
+
+export function buildWebsiteSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE_NAME,
+    url: SITE_URL,
+    inLanguage: ['bn', 'en'],
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SITE_URL}/products?search={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
   };
 }
 

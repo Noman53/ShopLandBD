@@ -99,7 +99,7 @@ export default function ProductsPage() {
   ].filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-background safe-bottom">
+    <div className="page-enter storefront-page min-h-screen bg-background safe-bottom">
       <SEO
         title={t('সব পণ্য', 'All Products')}
         description="ShopLandBD-তে সব পণ্য ব্রাউজ করুন। সেরা দামে অনলাইন শপিং করুন বাংলাদেশে।"
@@ -111,8 +111,26 @@ export default function ProductsPage() {
           url: `${SITE_URL}/products`,
         }}
       />
+      <div className="catalog-heading mx-auto mt-5 max-w-7xl px-5 py-5 sm:mt-7 sm:px-7 sm:py-7">
+        <p className={`text-xs font-bold text-primary ${language === 'en' ? 'uppercase tracking-[0.14em]' : ''}`}>
+          {t('ShopLandBD-তে কেনাকাটা', 'ShopLandBD collection')}
+        </p>
+        <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl">
+              {t('পণ্যসমূহ', 'Explore products')}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t('আপনার পছন্দের পণ্য খুঁজুন এবং বিস্তারিত দেখে নিন।', 'Find products and review their details before ordering.')}
+            </p>
+          </div>
+          <span className="rounded-full border border-primary/15 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary">
+            {filteredProducts.length} {t('টি পণ্য', 'products')}
+          </span>
+        </div>
+      </div>
       {/* Search & Filter Bar - Always visible sticky */}
-      <div className="bg-card border-b border-border py-4 sticky top-[64px] z-40 shadow-sm">
+      <div className="catalog-toolbar border-b py-4 sticky top-[64px] z-40">
         <div className="container mx-auto px-4">
           {/* Search */}
           <div className="relative mb-4">
@@ -234,7 +252,7 @@ export default function ProductsPage() {
       </div>
 
       {/* Products Grid */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="scroll-reveal container mx-auto px-4 py-7 md:py-9">
         {/* Results Count */}
         <p className="text-sm text-muted-foreground mb-4">
           {filteredProducts.length} {t('টি পণ্য পাওয়া গেছে', 'products found')}
@@ -254,7 +272,7 @@ export default function ProductsPage() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-3.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}

@@ -65,7 +65,7 @@ export default function HeroSection() {
     <section className="relative overflow-hidden">
       {/* Main Hero — fixed 3:1 aspect ratio on all devices */}
       <div
-        className="relative text-primary-foreground group aspect-[var(--hero-mobile-ar)] sm:aspect-[3/1]"
+        className="store-hero relative min-h-[15rem] text-primary-foreground group aspect-[var(--hero-mobile-ar)] sm:min-h-0 sm:aspect-[3/1]"
         style={{ ['--hero-mobile-ar' as string]: `${mobileAspectRatio}` } as React.CSSProperties}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -92,7 +92,10 @@ export default function HeroSection() {
                   <img
                     src={slide.image_url}
                     alt=""
-                    className="absolute inset-0 w-full h-full object-contain sm:object-cover object-center"
+                    className={cn(
+                      "absolute inset-0 w-full h-full object-contain sm:object-cover object-center",
+                      isActive && "hero-slide-active"
+                    )}
                     loading={isActive ? 'eager' : 'lazy'}
                     fetchPriority={isActive ? 'high' : 'low'}
                     decoding={isActive ? 'sync' : 'async'}
@@ -116,22 +119,26 @@ export default function HeroSection() {
         {/* Content overlay — flex centered, responsive text with no cutoff */}
         <div className="absolute inset-0 z-10 flex items-center">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-[66%] sm:max-w-xl lg:max-w-2xl space-y-2.5 sm:space-y-4 md:space-y-5">
-              <h1 className="text-[clamp(0.68rem,2.9vw,0.94rem)] sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-[1.35] sm:leading-[1.15] tracking-tight drop-shadow-lg">
+            <div className="store-hero-content max-w-[74%] sm:max-w-xl lg:max-w-2xl space-y-2.5 sm:space-y-4 md:space-y-5">
+              <p className="hidden sm:inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
+                {t('বাংলাদেশে অনলাইন শপিং', 'Everyday shopping, made easier')}
+              </p>
+              <h1 className="text-[clamp(1rem,5vw,1.5rem)] sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-[1.25] sm:leading-[1.15] tracking-tight drop-shadow-lg">
                 {t(
-                  'বাংলাদেশের সেরা অনলাইন শপিং',
-                  'Best Online Shopping in Bangladesh'
+                  'আপনার অনলাইন কেনাকাটা শুরু হোক',
+                  'Find your next favorite'
                 )}
               </h1>
-              <p className="text-[clamp(0.5rem,2vw,0.68rem)] sm:text-sm md:text-base lg:text-lg opacity-90 drop-shadow-md leading-[1.4] sm:leading-[1.28]">
+              <p className="max-w-xl text-[clamp(0.72rem,2.8vw,0.95rem)] sm:text-sm md:text-base lg:text-lg text-white/90 drop-shadow-md leading-[1.4] sm:leading-[1.5]">
                 {t(
-                  'হাজার হাজার পণ্য, দ্রুত ডেলিভারি এবং নিরাপদ পেমেন্ট',
-                  'Thousands of products, fast delivery and secure payment'
+                  'পণ্য ব্রাউজ করুন, চেকআউটে পেমেন্ট ও ডেলিভারির তথ্য দেখুন',
+                  'Browse products and review payment and delivery details at checkout'
                 )}
               </p>
-              <div className="flex flex-nowrap gap-1 sm:gap-3 pt-1 sm:pt-1">
+              <div className="flex flex-nowrap gap-1.5 sm:gap-3 pt-1 sm:pt-1">
                 <Link to="/products">
-                  <Button size="lg" variant="secondary" className="font-semibold whitespace-nowrap text-[9px] sm:text-sm h-6 sm:h-10 md:h-11 px-2 sm:px-5 md:px-6 rounded-md sm:rounded-lg">
+                  <Button size="lg" variant="secondary" className="font-semibold whitespace-nowrap text-xs sm:text-sm h-10 px-3 sm:px-5 md:px-6 rounded-xl shadow-lg shadow-black/10">
                     {t('শপিং শুরু করুন', 'Start Shopping')}
                     <ArrowRight className="w-2.5 h-2.5 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
                   </Button>
@@ -139,7 +146,7 @@ export default function HeroSection() {
                 <Button
                   size="lg"
                   variant="ghost"
-                  className="text-primary-foreground border border-primary-foreground/30 hover:bg-primary-foreground/10 hover:text-primary-foreground whitespace-nowrap text-[9px] sm:text-sm h-6 sm:h-10 md:h-11 px-2 sm:px-5 md:px-6 rounded-md sm:rounded-lg"
+                  className="text-primary-foreground border border-primary-foreground/35 bg-white/5 hover:bg-primary-foreground/15 hover:text-primary-foreground whitespace-nowrap text-xs sm:text-sm h-10 px-3 sm:px-5 md:px-6 rounded-xl backdrop-blur-sm"
                   onClick={() => window.location.href = '/categories'}
                 >
                   {t('ক্যাটাগরি দেখুন', 'Browse Categories')}
@@ -221,7 +228,7 @@ export default function HeroSection() {
               </div>
               <div>
                 <p className="text-[10px] sm:text-xs md:text-sm font-medium">
-                  {t('দ্রুত ডেলিভারি', 'Fast Delivery')}
+                  {t('ডেলিভারির তথ্য', 'Delivery Details')}
                 </p>
                 <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground hidden sm:block">
                   {t('সারাদেশে', 'Nationwide')}
@@ -237,7 +244,7 @@ export default function HeroSection() {
                   {t('নিরাপদ পেমেন্ট', 'Secure Payment')}
                 </p>
                 <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground hidden sm:block">
-                  {t('১০০% সুরক্ষিত', '100% Protected')}
+                  {t('চেকআউটে দেখুন', 'Shown at checkout')}
                 </p>
               </div>
             </div>
@@ -247,10 +254,10 @@ export default function HeroSection() {
               </div>
               <div>
                 <p className="text-[10px] sm:text-xs md:text-sm font-medium">
-                  {t('২৪/৭ সাপোর্ট', '24/7 Support')}
+                  {t('কাস্টমার সহায়তা', 'Customer Support')}
                 </p>
                 <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground hidden sm:block">
-                  {t('সবসময় পাশে', 'Always here')}
+                  {t('চ্যাট ও যোগাযোগ', 'Chat and contact')}
                 </p>
               </div>
             </div>

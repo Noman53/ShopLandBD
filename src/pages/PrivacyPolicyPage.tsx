@@ -49,7 +49,7 @@ export default function PrivacyPolicyPage() {
               <section>
                 <h2 className="text-xl font-semibold mb-4">৩. তথ্য সুরক্ষা</h2>
                 <p className="text-muted-foreground">
-                  আমরা আপনার ব্যক্তিগত তথ্য সুরক্ষিত রাখতে প্রতিশ্রুতিবদ্ধ। আমরা শিল্প-মানক নিরাপত্তা ব্যবস্থা ব্যবহার করি।
+                  আপনার তথ্যের অ্যাক্সেস নিয়ন্ত্রণে আমরা আমাদের সিস্টেমে অনুমতি-ভিত্তিক নিয়ন্ত্রণ ও অন্যান্য সুরক্ষা ব্যবস্থা ব্যবহার করি। তবে ইন্টারনেটের মাধ্যমে তথ্য পাঠানো বা সংরক্ষণের কোনো পদ্ধতিই সম্পূর্ণ নিরাপত্তার নিশ্চয়তা দিতে পারে না।
                 </p>
               </section>
 
@@ -63,7 +63,7 @@ export default function PrivacyPolicyPage() {
               <section>
                 <h2 className="text-xl font-semibold mb-4">৫. যোগাযোগ</h2>
                 <p className="text-muted-foreground">
-                  প্রাইভেসি সংক্রান্ত যেকোনো প্রশ্নের জন্য আমাদের সাথে যোগাযোগ করুন: support@shoplandbd.com
+                  প্রাইভেসি সংক্রান্ত যেকোনো প্রশ্নের জন্য আমাদের সাথে যোগাযোগ করুন: shoplanbd2@gmail.com
                 </p>
               </section>
             </>
@@ -98,7 +98,7 @@ export default function PrivacyPolicyPage() {
               <section>
                 <h2 className="text-xl font-semibold mb-4">3. Data Protection</h2>
                 <p className="text-muted-foreground">
-                  We are committed to protecting your personal information. We use industry-standard security measures.
+                  We use permission-based access controls and other safeguards in the systems that handle your information. However, no method of transmitting or storing information online can be guaranteed completely secure.
                 </p>
               </section>
 
@@ -112,7 +112,7 @@ export default function PrivacyPolicyPage() {
               <section>
                 <h2 className="text-xl font-semibold mb-4">5. Contact</h2>
                 <p className="text-muted-foreground">
-                  For any privacy-related questions, contact us at: support@shoplandbd.com
+                  For any privacy-related questions, contact us at: shoplanbd2@gmail.com
                 </p>
               </section>
             </>

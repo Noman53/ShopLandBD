@@ -68,7 +68,7 @@ export default function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-card/60 backdrop-blur-xl border-b border-border/50 shadow-sm supports-[backdrop-filter]:bg-card/60">
+    <header className="storefront-header sticky top-0 z-50 border-b shadow-sm">
       <div className="container mx-auto px-4">
         {/* Main Header Row */}
         <div className="flex items-center justify-between h-16 md:h-[4.5rem] lg:h-20 gap-2 md:gap-3 lg:gap-4">

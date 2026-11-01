@@ -42,13 +42,18 @@ export default function CategoryCard({
   return (
     <Link to={`/products?category=${slug}`} className="block group">
       <div className="category-card p-3 md:p-4 text-center transition-all duration-200 hover:shadow-md hover:border-primary/30">
-        <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden group-hover:bg-primary/20 transition-colors">
+        <div className="category-card-icon w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 rounded-2xl bg-primary/10 flex items-center justify-center overflow-hidden group-hover:bg-primary/20 transition-colors">
           {image_url ? (
             <img
               src={image_url}
               alt={language === 'bn' ? name_bn : name_en}
               className="w-full h-full object-cover"
               loading="lazy"
+              onError={(event) => {
+                if (!event.currentTarget.currentSrc.endsWith('/product-placeholder.svg')) {
+                  event.currentTarget.src = '/product-placeholder.svg';
+                }
+              }}
             />
           ) : (
             <FallbackIcon className="w-6 h-6 md:w-7 md:h-7 text-primary" />

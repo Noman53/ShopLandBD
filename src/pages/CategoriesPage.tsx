@@ -10,7 +10,7 @@ export default function CategoriesPage() {
   const { data: categories, isLoading } = useCategories();
 
   return (
-    <div className="min-h-screen bg-background safe-bottom">
+    <div className="page-enter min-h-screen bg-background safe-bottom">
       <SEO
         title={t('সব ক্যাটাগরি', 'All Categories')}
         description="ShopLandBD-এর সব ক্যাটাগরি দেখুন। পছন্দের ক্যাটাগরি থেকে পণ্য বাছাই করুন।"

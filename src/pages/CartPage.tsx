@@ -16,7 +16,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-background safe-bottom flex flex-col items-center justify-center p-4">
+      <div className="page-enter min-h-screen bg-background safe-bottom flex flex-col items-center justify-center p-4">
         <SEO title={t('শপিং কার্ট', 'Shopping Cart')} description="আপনার ShopLandBD শপিং কার্ট দেখুন ও পণ্য যোগ করুন। সহজে চেকআউট করুন।" canonical="/cart" noindex />
         <div className="text-center">
           <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-secondary flex items-center justify-center">
@@ -40,7 +40,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background safe-bottom">
+    <div className="page-enter min-h-screen bg-background safe-bottom">
       <SEO title={t('শপিং কার্ট', 'Shopping Cart')} description="আপনার ShopLandBD শপিং কার্ট দেখুন, পরিমাণ আপডেট করুন এবং চেকআউটে এগিয়ে যান।" canonical="/cart" noindex />
       <div className="container mx-auto px-4 py-6">
         <h1 className="text-2xl font-bold mb-6">
@@ -53,15 +53,20 @@ export default function CartPage() {
             {items.map((item) => (
               <div
                 key={item.id}
-                className="flex gap-4 p-4 bg-card rounded-xl border border-border"
+                className="store-card flex gap-4 border bg-card p-4"
               >
                 {/* Product Image */}
                 <Link to={`/products/${item.productId}`} className="flex-shrink-0">
                   <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden bg-secondary">
                     <img
-                      src={item.image}
+                      src={item.image || '/product-placeholder.svg'}
                       alt={language === 'bn' ? item.name_bn : item.name_en}
                       className="w-full h-full object-cover"
+                      onError={(event) => {
+                        if (!event.currentTarget.currentSrc.endsWith('/product-placeholder.svg')) {
+                          event.currentTarget.src = '/product-placeholder.svg';
+                        }
+                      }}
                     />
                   </div>
                 </Link>
@@ -135,7 +140,7 @@ export default function CartPage() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="sticky top-[160px] bg-card rounded-xl border border-border p-6">
+            <div className="store-card sticky top-[160px] border bg-card p-5 sm:p-6">
               <h2 className="text-lg font-bold mb-4">
                 {t('অর্ডার সারাংশ', 'Order Summary')}
               </h2>
