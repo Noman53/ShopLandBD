@@ -107,11 +107,19 @@ async function buildSupportReply(
   const isAwaitingOrderDetails = (
     (
       previousAssistant.includes("order id") &&
-      (previousAssistant.includes("phone") || previousAssistant.includes("first 8 characters"))
+      (
+        previousAssistant.includes("phone") ||
+        previousAssistant.includes("first 8 characters") ||
+        previousAssistant.includes("8-character order id")
+      )
     ) ||
     (
       previousAssistant.includes("অর্ডার আইডি") &&
-      (previousAssistant.includes("ফোন") || previousAssistant.includes("প্রথম ৮ অক্ষর"))
+      (
+        previousAssistant.includes("ফোন") ||
+        previousAssistant.includes("প্রথম ৮ অক্ষর") ||
+        previousAssistant.includes("৮ অক্ষরের অর্ডার আইডি")
+      )
     ) ||
     previousAssistant.includes("phone number used at checkout") ||
     previousAssistant.includes("ফোন নম্বরটি পাঠান")
@@ -134,8 +142,8 @@ async function buildSupportReply(
   if (wantsOrderTracking || isAwaitingOrderDetails || orderReference) {
     if (!orderReference && !phone) {
       return isBangla
-        ? "আপনার অর্ডারের প্রথম ৮ অক্ষরের আইডি (যেমন `A1B2C3D4`) এবং অর্ডারের সময় দেওয়া ফোন নম্বরটি পাঠান।"
-        : "Send the first 8 characters of your order ID (for example, `A1B2C3D4`) and the phone number used at checkout.";
+        ? "আপনার অর্ডারের অবস্থা জানতে ৮ অক্ষরের অর্ডার আইডিটি লিখুন (যেমন `A1B2C3D4`)।"
+        : "To track your order, enter your 8-character Order ID (for example, `A1B2C3D4`).";
     }
     if (!orderReference) {
       return isBangla

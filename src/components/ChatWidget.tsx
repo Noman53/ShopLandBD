@@ -287,6 +287,19 @@ export default function ChatWidget() {
     // 1. Order tracking detection (matches 8-char hex or UUID)
     const orderMatch = userQuery.match(/\b[0-9a-f]{8}(?:-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?\b/i);
     const phoneMatch = userQuery.match(/(?:\+?880[\s-]?1[3-9](?:[\s-]?\d){8}|01[3-9](?:[\s-]?\d){8})/);
+    const previousAssistant = [...messages].reverse()
+      .find((message) => message.sender_type === 'ai')?.content.toLowerCase() ?? '';
+    const isAwaitingOrderDetails =
+      (previousAssistant.includes('order id') &&
+        (previousAssistant.includes('phone') || previousAssistant.includes('8-character order id'))) ||
+      (previousAssistant.includes('অর্ডার আইডি') &&
+        (previousAssistant.includes('ফোন') || previousAssistant.includes('৮ অক্ষরের অর্ডার আইডি')));
+    const orderReference = orderMatch?.[0] ?? (isAwaitingOrderDetails
+      ? [...messages].reverse()
+        .filter((message) => message.sender_type === 'customer')
+        .map((message) => message.content.match(/\b[0-9a-f]{8}(?:-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?\b/i)?.[0])
+        .find(Boolean)
+      : undefined);
 
     const wantsOrder =
       q.includes('track') ||
@@ -297,9 +310,9 @@ export default function ChatWidget() {
       q.includes('অর্ডারের অবস্থা') ||
       q.includes('অর্ডার চেক');
 
-    if (wantsOrder || (orderMatch && phoneMatch)) {
-      if (orderMatch && phoneMatch) {
-        const orderIdClean = orderMatch[0].toLowerCase();
+    if (wantsOrder || (orderReference && phoneMatch) || (isAwaitingOrderDetails && orderReference)) {
+      if (orderReference && phoneMatch) {
+        const orderIdClean = orderReference.toLowerCase();
         let phoneClean = phoneMatch[0].replace(/\D/g, '');
         if (phoneClean.startsWith('880')) phoneClean = '0' + phoneClean.slice(3);
 
@@ -342,9 +355,15 @@ export default function ChatWidget() {
           : `We couldn't match that order ID and phone number. Please double check the details or visit the [Order Tracking page](/track-order).`;
       }
 
+      if (orderReference && !phoneMatch) {
+        return isBn
+          ? `অর্ডারটি যাচাই করতে অর্ডার করার সময় ব্যবহৃত ফোন নম্বরটি লিখুন।`
+          : `To verify your order, please enter the phone number used at checkout.`;
+      }
+
       return isBn
-        ? `আপনার অর্ডারের অবস্থা জানতে অনুগ্রহ করে আপনার **৮ অক্ষরের অর্ডার আইডি** (যেমন: \`A1B2C3D4\`) এবং অর্ডারের সময় ব্যবহৃত **১১ সংখ্যার ফোন নম্বরটি** একসঙ্গে লিখুন। অথবা সরাসরি আমাদের [অর্ডার ট্র্যাকিং পেজ](/track-order) দেখুন।`
-        : `To track your order, please reply with your **8-character Order ID** (e.g. \`A1B2C3D4\`) and the **11-digit phone number** used at checkout, or visit our [Order Tracking page](/track-order).`;
+        ? `আপনার অর্ডারের অবস্থা জানতে অনুগ্রহ করে **৮ অক্ষরের অর্ডার আইডিটি** লিখুন (যেমন: \`A1B2C3D4\`)। অথবা সরাসরি [অর্ডার ট্র্যাকিং পেজ](/track-order) দেখুন।`
+        : `To track your order, please enter your **8-character Order ID** (e.g. \`A1B2C3D4\`), or visit the [Order Tracking page](/track-order).`;
     }
 
     // 2. Delivery charge / shipping fee
