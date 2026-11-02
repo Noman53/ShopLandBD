@@ -132,18 +132,20 @@
   }
 
   html {
-    scroll-behavior: smooth;
     scrollbar-color: hsl(var(--primary) / 0.35) hsl(var(--background));
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-english);
     font-size: clamp(0.9375rem, 0.875rem + 0.25vw, 1.0625rem);
+    -webkit-overflow-scrolling: touch;
     background-image:
-      radial-gradient(ellipse at 2% 12%, hsl(158 40% 72% / 0.07), transparent 34rem),
-      radial-gradient(ellipse at 98% 38%, hsl(38 70% 78% / 0.07), transparent 32rem);
-    background-attachment: fixed;
+      radial-gradient(ellipse at 10% 0%, hsl(158 40% 72% / 0.08), transparent 32rem),
+      radial-gradient(ellipse at 90% 20%, hsl(38 70% 78% / 0.08), transparent 28rem);
+    background-attachment: scroll;
   }
 
   /* Bangla text styling */
@@ -210,11 +212,11 @@
   }
 
   .storefront-header {
-    background: hsl(var(--card) / 0.82);
+    background: hsl(var(--card) / 0.96);
     border-color: hsl(var(--border) / 0.7);
     box-shadow: 0 5px 24px hsl(var(--foreground) / 0.045);
-    backdrop-filter: blur(20px) saturate(155%);
-    -webkit-backdrop-filter: blur(20px) saturate(155%);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .storefront-header nav a,
@@ -224,58 +226,35 @@
 
   .store-hero {
     isolation: isolate;
-    background: hsl(var(--foreground));
+    background: hsl(var(--card));
+    position: relative;
+    touch-action: pan-y;
   }
 
-  .store-hero::after {
-    position: absolute;
-    z-index: 2;
-    inset: 0;
-    pointer-events: none;
-    content: "";
-    background:
-      linear-gradient(90deg, hsl(168 36% 7% / 0.78) 0%, hsl(168 36% 7% / 0.5) 48%, hsl(168 36% 7% / 0.05) 100%),
-      linear-gradient(0deg, hsl(168 36% 7% / 0.22), transparent 42%);
-  }
-
+  /* Slider banners are shown crisp and bright without any dark overlay */
   .store-hero-content {
-    animation: hero-content-enter 700ms cubic-bezier(0.2, 0.75, 0.2, 1) both;
+    animation: hero-content-enter 500ms cubic-bezier(0.2, 0.75, 0.2, 1) both;
   }
 
   .store-hero .hero-slide-active {
-    animation: hero-image-drift 5s ease-out both;
+    opacity: 1;
+    /* Clean transition without continuous heavy GPU scaling during scroll */
+    will-change: opacity;
   }
 
   .storefront-page {
     position: relative;
     isolation: isolate;
     background-color: hsl(45 30% 97%);
-    background-image:
-      radial-gradient(ellipse at 8% 12%, hsl(158 44% 80% / 0.16), transparent 32rem),
-      radial-gradient(ellipse at 92% 38%, hsl(38 76% 84% / 0.16), transparent 30rem),
-      linear-gradient(145deg, hsl(45 36% 99% / 0.98), hsl(48 25% 96% / 0.96) 52%, hsl(150 18% 96% / 0.98));
-    background-attachment: fixed;
-  }
-
-  .storefront-page::before {
-    position: fixed;
-    z-index: -1;
-    inset: 0;
-    pointer-events: none;
-    content: "";
-    background:
-      radial-gradient(ellipse at 18% 22%, hsl(158 55% 78% / 0.12), transparent 28rem),
-      radial-gradient(ellipse at 78% 62%, hsl(38 80% 82% / 0.1), transparent 30rem),
-      radial-gradient(ellipse at 52% 92%, hsl(150 36% 84% / 0.1), transparent 26rem);
-    filter: blur(40px);
+    background-attachment: scroll;
   }
 
   .storefront-page .store-section > .container {
     border: 1px solid hsl(150 18% 82% / 0.48);
-    background: hsl(45 38% 99% / 0.78);
-    box-shadow: 0 14px 40px hsl(168 30% 12% / 0.045);
-    backdrop-filter: blur(14px) saturate(120%);
-    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    background: hsl(45 38% 99% / 0.88);
+    box-shadow: 0 8px 30px hsl(168 30% 12% / 0.035);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .storefront-page .store-section:nth-of-type(even) > .container {
@@ -302,8 +281,8 @@
     background: hsl(var(--card) / 0.9);
     border-color: hsl(var(--border) / 0.7);
     box-shadow: 0 10px 32px hsl(var(--foreground) / 0.055);
-    backdrop-filter: blur(18px) saturate(150%);
-    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .catalog-heading {
@@ -348,22 +327,6 @@
 
   .scroll-reveal {
     transform-origin: center top;
-  }
-
-  .store-section .product-card-link {
-    animation: card-enter 650ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  }
-
-  .store-section .product-card-link:nth-child(4n + 2) {
-    animation-delay: 70ms;
-  }
-
-  .store-section .product-card-link:nth-child(4n + 3) {
-    animation-delay: 140ms;
-  }
-
-  .store-section .product-card-link:nth-child(4n + 4) {
-    animation-delay: 210ms;
   }
 
   .store-card input,
@@ -432,17 +395,6 @@
     }
   }
 
-  @keyframes card-enter {
-    from {
-      opacity: 0;
-      transform: translateY(18px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
   @keyframes page-enter {
     from {
       opacity: 0;
@@ -459,7 +411,7 @@
     background-image:
       radial-gradient(ellipse at 8% 0%, hsl(var(--primary) / 0.08), transparent 34rem),
       radial-gradient(ellipse at 100% 12%, hsl(var(--accent) / 0.07), transparent 30rem);
-    background-attachment: fixed;
+    background-attachment: scroll;
   }
 
   .about-hero {
@@ -470,16 +422,16 @@
     background-color: hsl(var(--card) / 0.94);
     border-color: hsl(var(--border) / 0.75);
     box-shadow: 8px 0 32px hsl(var(--foreground) / 0.035);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .admin-topbar {
     background-color: hsl(var(--card) / 0.82);
     border-color: hsl(var(--border) / 0.7);
     box-shadow: 0 4px 20px hsl(var(--foreground) / 0.035);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .admin-page-content > * {
@@ -542,27 +494,29 @@
 
   /* Product Card Styles */
   .product-card {
-    @apply relative overflow-hidden rounded-2xl bg-card border border-border/50 transition-all duration-300;
+    @apply relative overflow-hidden rounded-2xl bg-card border border-border/50 transition-all duration-200;
     box-shadow: var(--shadow-sm);
   }
 
-  .product-card:hover {
-    @apply border-primary/30;
-    box-shadow: var(--shadow-xl);
-    transform: translateY(-6px);
+  @media (hover: hover) and (pointer: fine) {
+    .product-card:hover {
+      @apply border-primary/30;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+
+    .product-card-image img {
+      transition: transform 400ms ease, filter 200ms ease;
+    }
+
+    .product-card:hover .product-card-image img {
+      transform: scale(1.04);
+    }
   }
 
   .product-card-image {
     background:
       radial-gradient(ellipse at 50% 38%, hsl(var(--card)), hsl(var(--secondary) / 0.86));
-  }
-
-  .product-card-image img {
-    transition: transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1), filter 300ms ease;
-  }
-
-  .product-card:hover .product-card-image img {
-    transform: scale(1.07);
   }
 
   .product-card-content {
@@ -605,12 +559,12 @@
   /* Bottom Navigation */
   .bottom-nav {
     @apply fixed bottom-0 left-0 right-0 z-50;
-    background: hsl(var(--card) / 0.65);
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border-top: 1px solid hsl(var(--border) / 0.4);
+    background: hsl(var(--card) / 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid hsl(var(--border) / 0.6);
     padding-bottom: env(safe-area-inset-bottom);
-    box-shadow: 0 -4px 20px hsl(var(--foreground) / 0.06);
+    box-shadow: 0 -4px 20px hsl(var(--foreground) / 0.05);
   }
 
   .bottom-nav-item {
@@ -770,23 +724,9 @@
   }
 }
 
-@supports (animation-timeline: view()) {
-  .scroll-reveal {
-    animation: scroll-section-enter linear both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 65%;
-  }
-
-  @keyframes scroll-section-enter {
-    from {
-      opacity: 0.18;
-      transform: translateY(32px) scale(0.99);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+/* Keep scroll position native and compositor friendly on mobile and desktop. */
+.scroll-reveal {
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -823,14 +763,14 @@
   }
 }
 
-/* Chat button ripple animation */
+/* Chat button ripple animation - compositor accelerated */
 @keyframes chat-ripple {
   0% {
     transform: scale(1);
-    opacity: 0.4;
+    opacity: 0.35;
   }
   100% {
-    transform: scale(2.2);
+    transform: scale(1.8);
     opacity: 0;
   }
 }
@@ -842,9 +782,11 @@
   inset: 0;
   border-radius: 50%;
   border: 2px solid currentColor;
-  animation: chat-ripple 2s ease-out infinite;
+  animation: chat-ripple 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+  will-change: transform, opacity;
+  pointer-events: none;
 }
 
 .chat-ripple::after {
-  animation-delay: 1s;
+  animation-delay: 1.2s;
 }

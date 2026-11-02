@@ -350,10 +350,10 @@ async function handleRequest(req: Request) {
     const authenticatedUser = bearerToken && bearerToken !== anonKey
       ? await supabase.auth.getUser(bearerToken)
       : null;
-    if (authenticatedUser?.error) {
+    if (authenticatedUser?.error && !guestToken) {
       return jsonResponse({ error: "Invalid authentication" }, 401, corsHeaders);
     }
-    const user = authenticatedUser?.data.user ?? null;
+    const user = authenticatedUser?.data?.user ?? null;
 
     let conversationQuery = supabase
       .from("chat_conversations")

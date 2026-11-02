@@ -10,7 +10,6 @@ export default function HeroSection() {
   const { t } = useLanguage();
   const { data: slides, isLoading } = useHeroSlides();
   const [current, setCurrent] = useState(0);
-  const [mobileAspectRatio, setMobileAspectRatio] = useState(3);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const touchStartX = useRef<number | null>(null);
 
@@ -63,10 +62,9 @@ export default function HeroSection() {
 
   return (
     <section className="relative overflow-hidden">
-      {/* Main Hero — fixed 3:1 aspect ratio on all devices */}
+      {/* Keep the uploaded banner ratio so mobile never crops or overflows it. */}
       <div
-        className="store-hero relative min-h-[15rem] text-primary-foreground group aspect-[var(--hero-mobile-ar)] sm:min-h-0 sm:aspect-[3/1]"
-        style={{ ['--hero-mobile-ar' as string]: `${mobileAspectRatio}` } as React.CSSProperties}
+        className="store-hero relative w-full text-primary-foreground group aspect-[3/1]"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -84,30 +82,21 @@ export default function HeroSection() {
                   style={{
                     opacity: isActive ? 1 : 0,
                     zIndex: isActive ? 1 : 0,
-                    transition: 'opacity 1s cubic-bezier(0.4, 0, 0.2, 1)',
-                    willChange: 'opacity',
+                    transition: 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                   aria-hidden={!isActive}
                 >
-                  <img
-                    src={slide.image_url}
-                    alt=""
-                    className={cn(
-                      "absolute inset-0 w-full h-full object-contain sm:object-cover object-center",
-                      isActive && "hero-slide-active"
-                    )}
-                    loading={isActive ? 'eager' : 'lazy'}
-                    fetchPriority={isActive ? 'high' : 'low'}
-                    decoding={isActive ? 'sync' : 'async'}
-                    onLoad={(event) => {
-                      const image = event.currentTarget;
-                      if (isActive && image.naturalWidth && image.naturalHeight) {
-                        setMobileAspectRatio(image.naturalWidth / image.naturalHeight);
-                      }
-                    }}
-                    draggable={false}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/35 to-black/15" />
+                  <Link to="/products" className="block w-full h-full cursor-pointer">
+                    <img
+                      src={slide.image_url}
+                      alt="Banner"
+                      className="absolute inset-0 w-full h-full object-cover object-center"
+                      loading={isActive ? 'eager' : 'lazy'}
+                      fetchPriority={isActive ? 'high' : 'low'}
+                      decoding={isActive ? 'sync' : 'async'}
+                      draggable={false}
+                    />
+                  </Link>
                 </div>
               );
             })}
@@ -116,45 +105,48 @@ export default function HeroSection() {
           <div className="absolute inset-0 hero-gradient" />
         )}
 
-        {/* Content overlay — flex centered, responsive text with no cutoff */}
-        <div className="absolute inset-0 z-10 flex items-center">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="store-hero-content max-w-[74%] sm:max-w-xl lg:max-w-2xl space-y-2.5 sm:space-y-4 md:space-y-5">
-              <p className="hidden sm:inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm">
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
-                {t('বাংলাদেশে অনলাইন শপিং', 'Everyday shopping, made easier')}
-              </p>
-              <h1 className="text-[clamp(1rem,5vw,1.5rem)] sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-[1.25] sm:leading-[1.15] tracking-tight drop-shadow-lg">
-                {t(
-                  'আপনার অনলাইন কেনাকাটা শুরু হোক',
-                  'Find your next favorite'
-                )}
-              </h1>
-              <p className="max-w-xl text-[clamp(0.72rem,2.8vw,0.95rem)] sm:text-sm md:text-base lg:text-lg text-white/90 drop-shadow-md leading-[1.4] sm:leading-[1.5]">
-                {t(
-                  'পণ্য ব্রাউজ করুন, চেকআউটে পেমেন্ট ও ডেলিভারির তথ্য দেখুন',
-                  'Browse products and review payment and delivery details at checkout'
-                )}
-              </p>
-              <div className="flex flex-nowrap gap-1.5 sm:gap-3 pt-1 sm:pt-1">
-                <Link to="/products">
-                  <Button size="lg" variant="secondary" className="font-semibold whitespace-nowrap text-xs sm:text-sm h-10 px-3 sm:px-5 md:px-6 rounded-xl shadow-lg shadow-black/10">
-                    {t('শপিং শুরু করুন', 'Start Shopping')}
-                    <ArrowRight className="w-2.5 h-2.5 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
-                  </Button>
-                </Link>
-                <Button
-                  size="lg"
-                  variant="ghost"
-                  className="text-primary-foreground border border-primary-foreground/35 bg-white/5 hover:bg-primary-foreground/15 hover:text-primary-foreground whitespace-nowrap text-xs sm:text-sm h-10 px-3 sm:px-5 md:px-6 rounded-xl backdrop-blur-sm"
-                  onClick={() => window.location.href = '/categories'}
-                >
-                  {t('ক্যাটাগরি দেখুন', 'Browse Categories')}
-                </Button>
+        {/* Content overlay — clean brand banner when no slide banners are uploaded */}
+        {!hasSlides && !isLoading && (
+          <div className="absolute inset-0 z-10 flex items-center">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="store-hero-content max-w-[74%] sm:max-w-xl lg:max-w-2xl space-y-2.5 sm:space-y-4 md:space-y-5">
+                <p className="hidden sm:inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
+                  {t('বাংলাদেশে অনলাইন শপিং', 'Everyday shopping, made easier')}
+                </p>
+                <h1 className="text-[clamp(1rem,5vw,1.5rem)] sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-[1.25] sm:leading-[1.15] tracking-tight">
+                  {t(
+                    'আপনার অনলাইন কেনাকাটা শুরু হোক',
+                    'Find your next favorite'
+                  )}
+                </h1>
+                <p className="max-w-xl text-[clamp(0.72rem,2.8vw,0.95rem)] sm:text-sm md:text-base lg:text-lg text-white/90 leading-[1.4] sm:leading-[1.5]">
+                  {t(
+                    'পণ্য ব্রাউজ করুন, চেকআউটে পেমেন্ট ও ডেলিভারির তথ্য দেখুন',
+                    'Browse products and review payment and delivery details at checkout'
+                  )}
+                </p>
+                <div className="flex flex-nowrap gap-1.5 sm:gap-3 pt-1 sm:pt-1">
+                  <Link to="/products">
+                    <Button size="lg" variant="secondary" className="font-semibold whitespace-nowrap text-xs sm:text-sm h-10 px-3 sm:px-5 md:px-6 rounded-xl shadow-lg shadow-black/10">
+                      {t('শপিং শুরু করুন', 'Start Shopping')}
+                      <ArrowRight className="w-2.5 h-2.5 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
+                    </Button>
+                  </Link>
+                  <Link to="/categories">
+                    <Button
+                      size="lg"
+                      variant="ghost"
+                      className="text-primary-foreground border border-primary-foreground/35 bg-white/5 hover:bg-primary-foreground/15 hover:text-primary-foreground whitespace-nowrap text-xs sm:text-sm h-10 px-3 sm:px-5 md:px-6 rounded-xl"
+                    >
+                      {t('ক্যাটাগরি দেখুন', 'Browse Categories')}
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Navigation arrows */}
         {slideCount > 1 && (
@@ -163,10 +155,10 @@ export default function HeroSection() {
               onClick={goPrev}
               className={cn(
                 "absolute left-2 sm:left-4 md:left-6 top-1/2 -translate-y-1/2 z-20",
-                "w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full",
-                "bg-black/25 backdrop-blur-md text-primary-foreground",
-                "flex items-center justify-center",
-                "hover:bg-black/45 transition-all duration-300 ease-in-out",
+                "w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full",
+                "bg-black/30 hover:bg-black/50 text-white backdrop-blur-sm",
+                "flex items-center justify-center shadow-md",
+                "transition-all duration-200 ease-in-out",
                 "opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto",
                 "translate-x-2 group-hover:translate-x-0"
               )}
@@ -178,10 +170,10 @@ export default function HeroSection() {
               onClick={goNext}
               className={cn(
                 "absolute right-2 sm:right-4 md:right-6 top-1/2 -translate-y-1/2 z-20",
-                "w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full",
-                "bg-black/25 backdrop-blur-md text-primary-foreground",
-                "flex items-center justify-center",
-                "hover:bg-black/45 transition-all duration-300 ease-in-out",
+                "w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full",
+                "bg-black/30 hover:bg-black/50 text-white backdrop-blur-sm",
+                "flex items-center justify-center shadow-md",
+                "transition-all duration-200 ease-in-out",
                 "opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto",
                 "-translate-x-2 group-hover:translate-x-0"
               )}
@@ -200,8 +192,8 @@ export default function HeroSection() {
                 key={i}
                 onClick={() => setCurrent(i)}
                 className={cn(
-                  'h-1.5 sm:h-2 rounded-full transition-all duration-500',
-                  i === current ? 'w-6 sm:w-8 bg-primary-foreground' : 'w-1.5 sm:w-2 bg-primary-foreground/50 hover:bg-primary-foreground/70'
+                  'h-1.5 sm:h-2 rounded-full transition-all duration-300',
+                  i === current ? 'w-6 sm:w-8 bg-white shadow-sm' : 'w-1.5 sm:w-2 bg-white/50 hover:bg-white/80'
                 )}
                 aria-label={`Go to slide ${i + 1}`}
               />

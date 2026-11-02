@@ -130,7 +130,7 @@ export default function ProductsPage() {
         </div>
       </div>
       {/* Search & Filter Bar - Always visible sticky */}
-      <div className="catalog-toolbar border-b py-4 sticky top-[64px] z-40">
+      <div className="catalog-toolbar border-b py-4 sticky top-16 md:top-[4.5rem] lg:top-20 z-30">
         <div className="container mx-auto px-4">
           {/* Search */}
           <div className="relative mb-4">

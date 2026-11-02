@@ -15,7 +15,7 @@ const INITIAL_SUGGESTIONS = [
 
 const FOLLOW_UP_SUGGESTIONS = [
   { bn: '⏱️ ডেলিভারি কতদিন লাগে?', en: '⏱️ How long is delivery?' },
-  { bn: '📞 মানুষের সাথে কথা বলতে চাই', en: '📞 Talk to a human' },
+  { bn: '📞 এজেন্টের সাথে কথা বলতে চাই', en: '📞 Talk to an agent' },
   { bn: '🎁 কোনো অফার আছে?', en: '🎁 Any offers available?' },
 ];
 

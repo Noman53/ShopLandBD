@@ -9,7 +9,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-card/60 backdrop-blur-xl border-t border-border/50 mt-auto supports-[backdrop-filter]:bg-card/60">
+    <footer className="bg-card border-t border-border/50 mt-auto">
       {/* Features Bar - Responsive Grid */}
       <div className="border-b border-border">
         <div className="container mx-auto px-4 py-4 md:py-6">

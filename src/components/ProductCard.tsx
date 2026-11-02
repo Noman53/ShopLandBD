@@ -11,7 +11,6 @@ import { cn } from '@/lib/utils';
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
@@ -76,9 +75,9 @@ export default function ProductCard({
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     toggleItem(id);
-    
+
     toast({
       title: isWishlisted
         ? t('উইশলিস্ট থেকে সরানো হয়েছে', 'Removed from wishlist')
@@ -105,7 +104,7 @@ export default function ProductCard({
               }
             }}
           />
-          
+
           {/* Discount Badge */}
           {discountPercentage > 0 && (
             <div className="discount-badge">
@@ -117,20 +116,20 @@ export default function ProductCard({
           <button
             onClick={handleToggleWishlist}
             aria-label={isWishlisted ? t('উইশলিস্ট থেকে সরান', 'Remove from wishlist') : t('উইশলিস্টে যোগ করুন', 'Add to wishlist')}
-            className="absolute top-3 right-3 w-10 h-10 rounded-full border border-white/70 bg-card/85 backdrop-blur-md flex items-center justify-center shadow-md hover:bg-card hover:scale-105 transition-all"
+            className="absolute top-3 right-3 w-10 h-10 rounded-full border border-white/70 bg-card flex items-center justify-center shadow-md hover:bg-card hover:scale-105 transition-all"
           >
-            <Heart 
+            <Heart
               className={cn(
                 "w-4 h-4 transition-all",
                 isWishlisted ? "fill-destructive text-destructive" : "text-muted-foreground"
-              )} 
+              )}
             />
           </button>
 
           {/* Out of Stock Overlay */}
           {stock_quantity < 1 && (
             <div className="absolute inset-0 bg-foreground/60 flex items-center justify-center">
-              <span className="text-background font-bold text-sm px-4 py-2 bg-foreground/85 backdrop-blur-sm rounded-full">
+              <span className="text-background font-bold text-sm px-4 py-2 bg-foreground/90 rounded-full">
                 {t('স্টক শেষ', 'Out of Stock')}
               </span>
             </div>
@@ -139,25 +138,23 @@ export default function ProductCard({
           {/* Quick Add Button */}
           {stock_quantity > 0 && (
             hasVariants ? (
-              <TooltipProvider delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="cursor-default shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-200"
-                        disabled
-                      >
-                        <Info className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-foreground text-background">
-                    <p>{t('অর্ডার করতে অপশন বাছুন', 'Please choose your options to order')}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="cursor-default shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-200"
+                      disabled
+                    >
+                      <Info className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="bg-foreground text-background">
+                  <p>{t('অর্ডার করতে অপশন বাছুন', 'Please choose your options to order')}</p>
+                </TooltipContent>
+              </Tooltip>
             ) : (
               <Button
                 onClick={handleAddToCart}
@@ -195,23 +192,21 @@ export default function ProductCard({
             {/* Mobile Add Button */}
             {stock_quantity > 0 && (
               hasVariants ? (
-                <TooltipProvider delayDuration={0}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="md:hidden h-10 w-10 p-0 rounded-xl"
-                        disabled
-                      >
-                        <Info className="w-4 h-4 text-muted-foreground" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-foreground text-background">
-                      <p>{t('অর্ডার করতে অপশন বাছুন', 'Please choose your options to order')}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="md:hidden h-10 w-10 p-0 rounded-xl"
+                      disabled
+                    >
+                      <Info className="w-4 h-4 text-muted-foreground" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="bg-foreground text-background">
+                    <p>{t('অর্ডার করতে অপশন বাছুন', 'Please choose your options to order')}</p>
+                  </TooltipContent>
+                </Tooltip>
               ) : (
                 <Button
                   onClick={handleAddToCart}

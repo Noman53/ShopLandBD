@@ -53,32 +53,78 @@ export default function TrackOrderPage() {
     const trimmedPhone = phone.trim();
 
     if (!trimmedId) {
-      setError(t('অর্ডার আইডি দিন', 'Please enter Order ID'));
+      setError(t('অর্ডার আইডি দিন', 'Please enter your Order ID'));
       return;
     }
 
-    if (!trimmedPhone || !isValidBDPhone(trimmedPhone)) {
+    // Phone is optional — validate only if provided
+    if (trimmedPhone && !isValidBDPhone(trimmedPhone)) {
       setError(t('সঠিক ফোন নম্বর দিন (01XXXXXXXXX)', 'Enter a valid phone number (01XXXXXXXXX)'));
       return;
     }
+
+    const cleanId = trimmedId.replace(/^#/, '').toLowerCase();
+    const normalizedPhone = trimmedPhone ? normalizeBDPhone(trimmedPhone) : null;
 
     setLoading(true);
     setSearched(true);
 
     try {
-      const normalizedPhone = normalizeBDPhone(trimmedPhone);
-      const { data, error: rpcError } = await supabase.rpc('track_order_public', {
-        p_order_id: trimmedId,
-        p_phone: normalizedPhone,
-      });
+      // 1. Try RPC track_order_public when phone is provided
+      if (normalizedPhone) {
+        const { data, error: rpcError } = await supabase.rpc('track_order_public', {
+          p_order_id: cleanId,
+          p_phone: normalizedPhone,
+        });
 
-      if (rpcError) {
-        setError(t('অর্ডার পাওয়া যায়নি। আইডি ও ফোন নম্বর চেক করুন।', 'Order not found. Please check your Order ID and phone number.'));
+        if (!rpcError && data) {
+          setOrder(data as unknown as TrackedOrder);
+          return;
+        }
+      }
+
+      // 2. Direct lookup by order ID only (phone is optional filter)
+      let query = supabase
+        .from('orders')
+        .select(`
+          id, customer_name, order_status, payment_method, payment_status, total, subtotal, created_at,
+          order_items (id, product_name_bn, product_name_en, quantity, price),
+          order_status_history (id, status, note, created_at)
+        `)
+        .ilike('id', `${cleanId}%`);
+
+      // Apply phone filter only when provided
+      if (normalizedPhone) {
+        query = query.eq('customer_phone', normalizedPhone);
+      }
+
+      const { data: directOrders, error: directError } = await query.limit(1);
+
+      if (!directError && directOrders && directOrders.length > 0) {
+        const row = directOrders[0] as any;
+        setOrder({
+          id: row.id,
+          customer_name: row.customer_name,
+          order_status: row.order_status,
+          payment_method: row.payment_method,
+          payment_status: row.payment_status,
+          total: row.total,
+          subtotal: row.subtotal,
+          created_at: row.created_at,
+          items: row.order_items || [],
+          history: row.order_status_history || [],
+        });
       } else {
-        setOrder(data as unknown as TrackedOrder);
+        setError(t(
+          'অর্ডার পাওয়া যায়নি। অর্ডার আইডিটি সঠিক আছে কিনা যাচাই করুন।',
+          'Order not found. Please check your Order ID.'
+        ));
       }
     } catch {
-      setError(t('অর্ডার পাওয়া যায়নি।', 'Order not found.'));
+      setError(t(
+        'অর্ডার পাওয়া যায়নি। অর্ডার আইডিটি সঠিক আছে কিনা যাচাই করুন।',
+        'Order not found. Please check your Order ID.'
+      ));
     } finally {
       setLoading(false);
     }
@@ -101,7 +147,7 @@ export default function TrackOrderPage() {
 
   return (
     <div className="min-h-screen bg-background safe-bottom pb-24">
-      <SEO title={t('অর্ডার ট্র্যাকিং', 'Track Order')} description="ফোন নম্বর ও অর্ডার আইডি দিয়ে আপনার ShopLandBD অর্ডারের লাইভ স্ট্যাটাস ট্র্যাক করুন।" canonical="/track-order" />
+      <SEO title={t('অর্ডার ট্র্যাকিং', 'Track Order')} description="অর্ডার আইডি দিয়ে আপনার ShopLandBD অর্ডারের লাইভ স্ট্যাটাস ট্র্যাক করুন।" canonical="/track-order" />
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
@@ -113,8 +159,8 @@ export default function TrackOrderPage() {
           </h1>
           <p className="text-muted-foreground text-sm">
             {t(
-              'আপনার অর্ডার আইডি এবং ফোন নম্বর দিয়ে অর্ডারের বর্তমান অবস্থা দেখুন',
-              'Enter your Order ID and phone number to check your order status'
+              'অর্ডার আইডি দিয়ে আপনার অর্ডারের বর্তমান অবস্থা দেখুন',
+              'Enter your Order ID to check your order status'
             )}
           </p>
         </div>
@@ -123,20 +169,27 @@ export default function TrackOrderPage() {
         <Card className="mb-6">
           <CardContent className="p-4 md:p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Order ID — Required */}
               <div>
                 <label className="block text-sm font-medium mb-1.5">
                   {t('অর্ডার আইডি', 'Order ID')}
+                  <span className="text-destructive ml-1">*</span>
                 </label>
                 <Input
-                  placeholder={t('অর্ডার আইডি পেস্ট করুন', 'Paste your Order ID')}
+                  placeholder={t('অর্ডার আইডি পেস্ট করুন (যেমন: A1B2C3D4)', 'Paste your Order ID (e.g. A1B2C3D4)')}
                   value={orderId}
                   onChange={(e) => setOrderId(e.target.value)}
                   className="font-mono"
                 />
               </div>
+
+              {/* Phone — Optional */}
               <div>
                 <label className="block text-sm font-medium mb-1.5">
                   {t('ফোন নম্বর', 'Phone Number')}
+                  <span className="text-muted-foreground text-xs ml-2">
+                    {t('(ঐচ্ছিক)', '(optional)')}
+                  </span>
                 </label>
                 <Input
                   placeholder="01XXXXXXXXX"
@@ -197,7 +250,7 @@ export default function TrackOrderPage() {
                   <div>
                     <p className="text-muted-foreground">{t('পেমেন্ট', 'Payment')}</p>
                     <p className="font-medium">
-                      {order.payment_method === 'bkash' ? 'bKash' : 'COD'} — {' '}
+                      {order.payment_method === 'bkash' ? 'bKash' : 'COD'} —{' '}
                       {language === 'bn'
                         ? paymentStatusMap[order.payment_status]?.bn || order.payment_status
                         : paymentStatusMap[order.payment_status]?.en || order.payment_status}

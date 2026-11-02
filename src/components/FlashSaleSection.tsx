@@ -24,6 +24,21 @@ export default function FlashSaleSection() {
   // Call hook unconditionally before any returns
   const { stockByProductId } = useComputedProductStock(products as any);
 
+  const [timeLeft, setTimeLeft] = React.useState<number>(() => {
+    return flashSale?.ends_at ? Math.max(0, new Date(flashSale.ends_at).getTime() - Date.now()) : 0;
+  });
+
+  React.useEffect(() => {
+    if (!flashSale?.ends_at) return;
+    const update = () => {
+      const remaining = Math.max(0, new Date(flashSale.ends_at).getTime() - Date.now());
+      setTimeLeft(remaining);
+    };
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, [flashSale?.ends_at]);
+
   if (isLoading) {
     return (
       <section className="py-8 md:py-12">
@@ -39,16 +54,13 @@ export default function FlashSaleSection() {
     );
   }
 
-  if (!flashSale || products.length === 0) {
+  if (!flashSale || products.length === 0 || timeLeft <= 0) {
     return null;
   }
 
-  // Calculate time remaining
-  const endTime = new Date(flashSale.ends_at).getTime();
-  const now = Date.now();
-  const timeLeft = endTime - now;
   const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
   const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+  const secondsLeft = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
   const getFallbackStock = (p: unknown) => {
     return Number((p as any)?.stock_quantity) || 0;

@@ -113,18 +113,25 @@ export default function ProductDetailPage() {
     }
   }, [disabledColorIds, selectedColor]);
 
-  // Scroll-direction tracking for go-back bar
+  // Scroll-direction tracking for go-back bar with rAF throttling for buttery-smooth scrolling
   useEffect(() => {
+    let ticking = false;
+    const threshold = 15;
     const onScroll = () => {
-      const y = window.scrollY;
-      if (y < 80) {
-        setShowGoBack(true);
-      } else if (y < lastScrollY.current) {
-        setShowGoBack(true);
-      } else {
-        setShowGoBack(false);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const y = window.scrollY;
+          if (y < 80) {
+            setShowGoBack(prev => prev ? prev : true);
+          } else if (Math.abs(y - lastScrollY.current) > threshold) {
+            const shouldShow = y < lastScrollY.current;
+            setShowGoBack(prev => prev === shouldShow ? prev : shouldShow);
+            lastScrollY.current = y;
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
-      lastScrollY.current = y;
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -267,7 +274,7 @@ export default function ProductDetailPage() {
       {/* Back Button - show on scroll up, hide on scroll down */}
       <div
         className={cn(
-          "bg-card border-b border-border py-3 sticky top-[64px] z-40 shadow-sm transition-all duration-300",
+          "bg-card border-b border-border py-3 sticky top-16 md:top-[4.5rem] lg:top-20 z-40 shadow-sm transition-all duration-300",
           showGoBack ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
         )}
       >

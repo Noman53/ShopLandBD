@@ -20,6 +20,10 @@ function getAllowedOrigins() {
 
 export function isAllowedOrigin(origin: string | null) {
   if (!origin) return true;
+  // Allow any localhost and 127.0.0.1 on any port (for vite dev / preview servers)
+  if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return true;
+  // Allow all vercel deployments (preview branches and production)
+  if (/^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.vercel\.app$/.test(origin)) return true;
   return getAllowedOrigins().has(origin);
 }
 

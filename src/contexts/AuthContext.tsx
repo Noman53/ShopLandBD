@@ -56,7 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    // Track discrete user interactions without listening to continuous scroll/mousemove events
+    const events = ['pointerdown', 'keydown', 'click'];
     events.forEach(e => window.addEventListener(e, handleActivity, { passive: true }));
 
     // Check if session has expired due to inactivity
