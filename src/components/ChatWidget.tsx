@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageCircle, X, Send, Headphones, Loader2, Clock, RefreshCw } from 'lucide-react';
+import { MessageCircle, X, Send, Headphones, Loader2, Clock, RefreshCw, Paperclip } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +11,7 @@ import ChatMessageComponent from '@/components/chat/ChatMessage';
 import TypingIndicator from '@/components/chat/TypingIndicator';
 import QuickReplies from '@/components/chat/QuickReplies';
 import EmojiPicker from '@/components/chat/EmojiPicker';
+import { encodeChatAttachment } from '@/components/chat/chatAttachmentUtils';
 import { isValidBDPhone, normalizeBDPhone } from '@/lib/validation';
 
 export interface ChatMessage {
@@ -29,6 +30,33 @@ interface UserProfile {
 const INACTIVITY_TIMEOUT = 10 * 60 * 1000;
 const ADMIN_WAIT_TIMEOUT = 2 * 60 * 1000;
 const SESSION_STORAGE_KEY = 'shoplandbd_chat_session';
+const MAX_CHAT_ATTACHMENT_SIZE = 10 * 1024 * 1024;
+const CHAT_ATTACHMENT_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/avif',
+  'image/heic',
+  'image/heif',
+  'application/pdf',
+  'text/plain',
+  'text/csv',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+]);
+const CHAT_ATTACHMENT_ACCEPT = [
+  ...CHAT_ATTACHMENT_TYPES,
+  '.pdf',
+  '.txt',
+  '.csv',
+  '.doc',
+  '.docx',
+  '.xls',
+  '.xlsx',
+].join(',');
 
 export default function ChatWidget() {
   const { t, language } = useLanguage();
@@ -38,6 +66,7 @@ export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -58,6 +87,7 @@ export default function ChatWidget() {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const attachmentInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const justFinishedStreamingRef = useRef(false);
   const inactivityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -774,6 +804,113 @@ export default function ChatWidget() {
     inputRef.current?.focus();
   };
 
+  const handleAttachmentSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    if (!CHAT_ATTACHMENT_TYPES.has(file.type) || file.size > MAX_CHAT_ATTACHMENT_SIZE) {
+      toast({
+        title: t('ফাইল পাঠানো যায়নি', 'Unable to attach file'),
+        description: t(
+          'ছবি বা ডকুমেন্ট ১০ MB-এর মধ্যে হতে হবে।',
+          'Choose a supported image or document up to 10 MB.'
+        ),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (conversationStatus === 'closed') {
+      toast({
+        title: t('চ্যাট বন্ধ আছে', 'Chat is closed'),
+        description: t('নতুন চ্যাট শুরু করে ফাইল পাঠান।', 'Start a new chat to send an attachment.'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsUploadingAttachment(true);
+    try {
+      const activeConversationId = await ensureConversation();
+      if (activeConversationId.startsWith('local-')) {
+        throw new Error('Chat service is unavailable');
+      }
+
+      const { data: upload, error: prepareError } = await supabase.functions.invoke('chat-ai', {
+        body: {
+          action: 'createChatAttachmentUpload',
+          conversationId: activeConversationId,
+          guestToken: guestAccessTokenRef.current,
+          contentType: file.type,
+          fileSize: file.size,
+        },
+      });
+      if (prepareError || typeof upload?.path !== 'string' || typeof upload?.token !== 'string') {
+        throw prepareError ?? new Error('Could not prepare file upload');
+      }
+
+      const { error: uploadError } = await supabase.storage
+        .from('chat-attachments')
+        .uploadToSignedUrl(upload.path, upload.token, file, {
+          contentType: file.type,
+          upsert: false,
+        });
+      if (uploadError) throw uploadError;
+
+      const content = encodeChatAttachment({
+        path: upload.path,
+        name: file.name.slice(0, 180),
+        type: file.type,
+      });
+
+      if (guestAccessTokenRef.current) {
+        const { error } = await supabase.functions.invoke('chat-ai', {
+          body: {
+            action: 'sendGuestMessage',
+            conversationId: activeConversationId,
+            guestToken: guestAccessTokenRef.current,
+            content,
+          },
+        });
+        if (error) throw error;
+      } else if (user) {
+        const { error } = await supabase.from('chat_messages').insert({
+          conversation_id: activeConversationId,
+          sender_type: 'customer',
+          sender_id: user.id,
+          content,
+        });
+        if (error) throw error;
+      } else {
+        throw new Error('Chat access is unavailable');
+      }
+
+      setMessages((previous) => [
+        ...previous,
+        {
+          id: crypto.randomUUID(),
+          sender_type: 'customer',
+          content,
+          created_at: new Date().toISOString(),
+          is_read: true,
+        },
+      ]);
+    } catch (error) {
+      console.error('Could not send chat attachment:', error);
+      toast({
+        title: t('ফাইল পাঠানো যায়নি', 'Unable to send attachment'),
+        description: t(
+          'আবার চেষ্টা করুন অথবা ছোট ছবি/ডকুমেন্ট পাঠান।',
+          'Please try again with a supported file under 10 MB.'
+        ),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploadingAttachment(false);
+    }
+  };
+
   const formatWaitTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -938,7 +1075,15 @@ export default function ChatWidget() {
 
             {/* Conversation Messages */}
             {messages.map((msg) => (
-              <ChatMessageComponent key={msg.id} {...msg} />
+              <ChatMessageComponent
+                key={msg.id}
+                {...msg}
+                conversationId={conversationId ?? undefined}
+                guestToken={guestAccessToken}
+                isGuest={Boolean(guestAccessToken)}
+                unavailableAttachmentLabel={t('সংযুক্তিটি খোলা যাচ্ছে না', 'Attachment unavailable')}
+                loadingAttachmentLabel={t('সংযুক্তি লোড হচ্ছে', 'Loading attachment')}
+              />
             ))}
 
             {/* Waiting for Admin Banner */}
@@ -997,6 +1142,30 @@ export default function ChatWidget() {
           {/* Input Bar */}
           <div className="flex flex-shrink-0 items-center gap-2 border-t bg-card p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
             <EmojiPicker onSelect={handleEmojiSelect} />
+            <input
+              ref={attachmentInputRef}
+              type="file"
+              accept={CHAT_ATTACHMENT_ACCEPT}
+              className="hidden"
+              onChange={handleAttachmentSelect}
+              aria-label={t('ফাইল বাছুন', 'Choose attachment')}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-10 w-9 flex-shrink-0 rounded-xl"
+              onClick={() => attachmentInputRef.current?.click()}
+              disabled={isUploadingAttachment || isLoading || isStreaming || conversationStatus === 'closed'}
+              aria-label={t('ফাইল সংযুক্ত করুন', 'Attach a file')}
+              title={t('ছবি বা ডকুমেন্ট সংযুক্ত করুন (সর্বোচ্চ ১০ MB)', 'Attach an image or document (up to 10 MB)')}
+            >
+              {isUploadingAttachment ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Paperclip className="h-4 w-4" />
+              )}
+            </Button>
             <Input
               ref={inputRef}
               placeholder={
@@ -1009,13 +1178,13 @@ export default function ChatWidget() {
               onKeyDown={handleKeyDown}
               maxLength={2000}
               className="text-sm h-10 flex-1 rounded-xl bg-secondary/50 border-border/70 focus-visible:ring-1"
-              disabled={isLoading || isStreaming || conversationStatus === 'closed'}
+              disabled={isLoading || isStreaming || isUploadingAttachment || conversationStatus === 'closed'}
             />
             <Button
               size="icon"
               className="h-10 w-10 rounded-xl flex-shrink-0 shadow-md"
               onClick={() => handleSend()}
-              disabled={!input.trim() || isLoading || isStreaming || conversationStatus === 'closed'}
+              disabled={!input.trim() || isLoading || isStreaming || isUploadingAttachment || conversationStatus === 'closed'}
             >
               {isLoading || isStreaming ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

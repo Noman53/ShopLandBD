@@ -12,6 +12,8 @@ import { Send, MessageCircle, User, CheckCircle2, Check, CheckCheck } from 'luci
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
+import ChatAttachment from '@/components/chat/chatAttachment';
+import { parseChatAttachment } from '@/components/chat/chatAttachmentUtils';
 
 interface Conversation {
   id: string;
@@ -255,6 +257,28 @@ export default function AdminChat() {
   const liveConversations = conversations.filter(c => c.status === 'live');
   const waitingConversations = conversations.filter(c => c.status === 'waiting_reply');
   const aiConversations = conversations.filter(c => c.status === 'ai');
+  const getLastMessagePreview = (content?: string) =>
+    content && parseChatAttachment(content)
+      ? t('📎 সংযুক্তি', '📎 Attachment')
+      : content;
+  const renderMessageContent = (msg: ChatMessage, conversationId: string) => {
+    const attachment = parseChatAttachment(msg.content);
+    if (attachment) {
+      return (
+        <ChatAttachment
+          attachment={attachment}
+          conversationId={conversationId}
+          unavailableLabel={t('সংযুক্তিটি খোলা যাচ্ছে না', 'Attachment unavailable')}
+          loadingLabel={t('সংযুক্তি লোড হচ্ছে', 'Loading attachment')}
+        />
+      );
+    }
+    return (
+      <div className="prose prose-sm max-w-none dark:prose-invert [&>p]:m-0">
+        <ReactMarkdown>{msg.content}</ReactMarkdown>
+      </div>
+    );
+  };
 
   return (
     <AdminLayout>
@@ -322,7 +346,7 @@ export default function AdminChat() {
                           </Badge>
                         </div>
                       </div>
-                      <p className="text-xs text-muted-foreground truncate">{conv.lastMessage}</p>
+                      <p className="text-xs text-muted-foreground truncate">{getLastMessagePreview(conv.lastMessage)}</p>
                       <p className="text-[10px] text-muted-foreground/60 mt-0.5">
                         {format(new Date(conv.updated_at), 'hh:mm a')}
                       </p>
@@ -361,7 +385,7 @@ export default function AdminChat() {
                           </Badge>
                         </div>
                       </div>
-                      <p className="text-xs text-muted-foreground truncate">{conv.lastMessage}</p>
+                      <p className="text-xs text-muted-foreground truncate">{getLastMessagePreview(conv.lastMessage)}</p>
                       <p className="text-[10px] text-muted-foreground/60 mt-0.5">
                         {format(new Date(conv.updated_at), 'hh:mm a')}
                       </p>
@@ -395,7 +419,7 @@ export default function AdminChat() {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground truncate">{conv.lastMessage}</p>
+                      <p className="text-xs text-muted-foreground truncate">{getLastMessagePreview(conv.lastMessage)}</p>
                     </button>
                   ))}
                 </div>
@@ -469,9 +493,7 @@ export default function AdminChat() {
                                 : 'bg-muted/50 rounded-tl-sm italic'
                             )}
                           >
-                            <div className="prose prose-sm max-w-none dark:prose-invert [&>p]:m-0">
-                              <ReactMarkdown>{msg.content}</ReactMarkdown>
-                            </div>
+                            {renderMessageContent(msg, selectedConv)}
                           </div>
                           <div className={cn(
                             'flex items-center gap-1 mt-0.5',

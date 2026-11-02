@@ -64,7 +64,7 @@ Configure the server-side `SITE_URL` Edge Function secret as `https://shoplandbd
 
 Password recovery uses Supabase Auth email delivery. Configure SMTP and allow the production `/reset-password` URL in Supabase Authentication URL Configuration. Phone-only accounts require an SMS provider for password recovery.
 
-The support chat uses built-in bilingual support rules, order-status lookup, and an admin handoff. Order lookup depends on the chat-related SQL migrations being applied to the connected database.
+The support chat uses built-in bilingual support rules, order-status lookup, private customer attachments, and an admin handoff. Order lookup and attachment uploads depend on the chat-related SQL migrations being applied to the connected database. Chat attachments are private and limited to supported images/documents up to 10 MB; the `chat-ai` function issues access-checked signed upload and download URLs.
 
 ## Routes
 

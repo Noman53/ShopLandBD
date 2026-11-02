@@ -1,11 +1,59 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Smile } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const EMOJI_CATEGORIES = [
-  { name: '😊', emojis: ['😊', '😂', '❤️', '👍', '🙏', '😍', '🥰', '😘', '🤗', '😁', '🎉', '✨', '🔥', '💯', '👏', '🤝'] },
-  { name: '🛒', emojis: ['🛒', '📦', '🚚', '💳', '💰', '🏷️', '🎁', '✅', '❌', '⏳', '📞', '📧', '🏠', '📍', '⭐', '💡'] },
-  { name: '😢', emojis: ['😢', '😤', '😡', '🤔', '😳', '😅', '🙁', '😒', '🤷', '👀', '🙄', '😬', '🫣', '😮', '🫡', '🤞'] },
+  {
+    name: '😊',
+    label: 'Smileys',
+    emojis: '😀 😃 😄 😁 😆 😅 😂 🙂 🙃 🫠 😉 😊 😇 🥰 😍 🤩 😘 😗 ☺️ 😚 😙 🥲 🥹 😋 😛 😜 🤪 😝 🤑 🤗 🤭 🫢 🫣 🤫 🤔 🫡 🤐 🤨 😐 😑 😶 🫥 😏 😒 🙄 😬 😮‍💨 🤥 😌 😔 😪 🤤 😴 😷 🤒 🤕 🤢 🤮 🤧 🥵 🥶 🥴 😵 😵‍💫 🤯 🤠 🥳 🥸 😎 🤓 🧐'.split(' '),
+  },
+  {
+    name: '👋',
+    label: 'Gestures',
+    emojis: '👋 🤚 🖐️ ✋ 🖖 🫱 🫲 🫳 🫴 👌 🤌 🤏 ✌️ 🤞 🫰 🤟 🤘 🤙 👈 👉 👆 🖕 👇 ☝️ 🫵 👍 👎 ✊ 👊 🤛 🤜 👏 🙌 👐 🤲 🤝 🙏 ✍️ 💅 🤳 💪 🦾 🫶'.split(' '),
+  },
+  {
+    name: '❤️',
+    label: 'Hearts',
+    emojis: '❤️ 🩷 🧡 💛 💚 💙 🩵 💜 🤎 🖤 🩶 🤍 💔 ❤️‍🔥 ❤️‍🩹 💕 💞 💓 💗 💖 💘 💝 💟 ❣️ 💌 💋'.split(' '),
+  },
+  {
+    name: '🐱',
+    label: 'Animals',
+    emojis: '🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐻‍❄️ 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🙈 🙉 🙊 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🦇 🐺 🐴 🦄 🐝 🪱 🦋 🐌 🐞 🐜 🪰 🪲 🪳 🦟 🦗 🕷️ 🦂 🐢 🐍 🦎 🐙 🦑 🦀 🐠 🐟 🐬 🐳 🦈 🐊 🐘 🦒 🦓 🦍 🐪 🐄 🐎 🐑 🐐 🐕 🐈 🐓 🦜 🦢 🦚'.split(' '),
+  },
+  {
+    name: '🍕',
+    label: 'Food',
+    emojis: '🍏 🍎 🍐 🍊 🍋 🍌 🍉 🍇 🍓 🫐 🍈 🍒 🍑 🥭 🍍 🥥 🥝 🍅 🥑 🍆 🥦 🥬 🥒 🌶️ 🫑 🌽 🥕 🫒 🧄 🧅 🥔 🍠 🥐 🥯 🍞 🥖 🧀 🥚 🍳 🧈 🥞 🧇 🥓 🥩 🍗 🍖 🌭 🍔 🍟 🍕 🥪 🌮 🌯 🫔 🥗 🥘 🍝 🍜 🍲 🍛 🍣 🍱 🥟 🍤 🍙 🍚 🍘 🍥 🥠 🥮 🍦 🍨 🍧 🍰 🎂 🧁 🥧 🍫 🍬 🍭 🍮 🍩 🍪 ☕ 🧋 🥤 🧃 🥛 🍵 🧉 🍺 🍻 🍷 🥂 🥃'.split(' '),
+  },
+  {
+    name: '⚽',
+    label: 'Activities',
+    emojis: '⚽ 🏀 🏈 ⚾ 🥎 🎾 🏐 🏉 🎱 🏓 🏸 🥅 🏒 🏑 🏏 🥍 🏹 🎣 🤿 🥊 🥋 🎽 🛹 🛼 🛷 ⛸️ 🥌 🎿 ⛷️ 🏂 🏋️ 🤼 🤸 ⛹️ 🤺 🏇 🧘 🏄 🏊 🚴 🚵 🏆 🥇 🥈 🥉 🏅 🎖️ 🏵️ 🎗️ 🎫 🎟️ 🎭 🎨 🎬 🎤 🎧 🎼 🎹 🥁 🎷 🎺 🪇 🪘 🎸 🪕 🎻 🎲 ♟️ 🎯 🎳 🎮 🕹️ 🧩'.split(' '),
+  },
+  {
+    name: '🚗',
+    label: 'Travel',
+    emojis: '🚗 🚕 🚙 🚌 🚎 🏎️ 🚓 🚑 🚒 🚐 🛻 🚚 🚛 🚜 🛵 🏍️ 🚲 🛴 🚏 🛣️ 🛤️ ⛽ 🚨 🚥 🚦 🚧 ⚓ 🛟 ⛵ 🚤 🛳️ ⛴️ 🚢 ✈️ 🛩️ 🛫 🛬 🪂 💺 🚁 🚟 🚠 🚡 🛰️ 🚀 🛸 🌍 🌎 🌏 🗺️ 🧭 🏕️ 🏖️ 🏝️ 🏜️ 🏞️ 🏟️ 🏛️ 🏗️ 🏘️ 🏠 🏡 🏢 🏬 🏪 🏫 🏥 🏦 🏨 🏩 🏰 🗼 🗽 ⛪ 🕌 🛕 ⛩️ 🕋 ⛲ 🌅 🌇 🌃 🌉 🌌 🌈'.split(' '),
+  },
+  {
+    name: '🛒',
+    label: 'Shopping',
+    emojis: '🛒 📦 📫 📬 📭 📮 🚚 🏷️ 🎁 🛍️ 💳 💵 💶 💷 💴 💸 💰 🪙 🧾 📱 💻 ⌚ 📷 📸 🎥 📺 🔌 🔋 💡 🔦 🧰 🪛 🔧 🔨 ⚙️ 🧲 🪜 🧹 🧺 🧻 🧼 🪥 🧴 🔑 🗝️ 🔒 🔓 🔐 🔏 🛡️ ✅ ☑️ ✔️ ❌ ❎ ⚠️ ⏳ ⌛ 📞 ☎️ 📧 ✉️ 📍 🏠 ⭐ 🌟 💡 🔔 🔕'.split(' '),
+  },
+  {
+    name: '🎉',
+    label: 'Symbols',
+    emojis: '🎉 🎊 🎈 🎂 🎀 🎁 🎆 🎇 🧨 ✨ 🎐 🎏 🎎 🎍 🎋 🎄 🧧 🎑 🏮 🎃 🎗️ 🔥 💯 💢 💥 💫 💦 💨 🕳️ 💬 🗨️ 🗯️ 💭 💤 ❤️‍🔥 💌 ♻️ 🔰 🔱 ☯️ ✝️ ☪️ 🕉️ ☸️ ✡️ 🔯 🕎 ☮️ 🆗 🆕 🆙 🆓 🆒 🆘 🅿️ 🅰️ 🅱️ 🆎 🏧 🚻 🚹 🚺 🚼 🚾 ♿ 🚭 🚮 🚰 🚸 ⛔ 🚫 🔞 📵 🔃 🔄 🔝 🔚 🔙 🔛 🔜 ➕ ➖ ➗ ✖️ ♾️ 💲 ™️ ©️ ®️'.split(' '),
+  },
+  {
+    name: '🚩',
+    label: 'Flags',
+    emojis: '🏁 🚩 🎌 🏴 🏳️ 🏳️‍🌈 🏳️‍⚧️ 🏴‍☠️ 🇧🇩 🇺🇸 🇬🇧 🇨🇦 🇦🇺 🇮🇳 🇵🇰 🇸🇦 🇦🇪 🇯🇵 🇰🇷 🇨🇳 🇫🇷 🇩🇪 🇮🇹 🇪🇸 🇧🇷 🇲🇾 🇸🇬 🇹🇷 🇳🇵 🇱🇰 🇶🇦 🇰🇼 🇴🇲 🇵🇭 🇮🇩 🇹🇭 🇳🇿 🇿🇦 🇳🇬 🇪🇬 🇺🇳'.split(' '),
+  },
 ];
 
 interface EmojiPickerProps {
@@ -13,60 +61,76 @@ interface EmojiPickerProps {
 }
 
 export default function EmojiPicker({ onSelect }: EmojiPickerProps) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
-    const handleClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isOpen]);
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div className="relative flex-shrink-0" ref={containerRef}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-        aria-label="Emoji"
+        onClick={() => setIsOpen((open) => !open)}
+        className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        aria-label={t('ইমোজি বাছুন', 'Choose emoji')}
+        aria-expanded={isOpen}
       >
-        <Smile className="w-5 h-5" />
+        <Smile className="h-5 w-5" />
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-full left-0 mb-2 w-[260px] bg-card border rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50">
-          {/* Category tabs */}
-          <div className="flex border-b px-2 pt-2 gap-1">
-            {EMOJI_CATEGORIES.map((cat, i) => (
+        <div
+          className="absolute bottom-full left-0 z-[70] mb-2 flex max-h-[min(22rem,55dvh)] w-[min(22rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-xl border bg-card shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-200"
+          role="dialog"
+          aria-label={t('ইমোজি তালিকা', 'Emoji picker')}
+        >
+          <div className="flex flex-shrink-0 gap-1 overflow-x-auto border-b px-2 pt-2 no-scrollbar" role="tablist" aria-label="Emoji categories">
+            {EMOJI_CATEGORIES.map((category, index) => (
               <button
-                key={i}
-                onClick={() => setActiveTab(i)}
+                key={category.label}
+                type="button"
+                role="tab"
+                aria-label={category.label}
+                aria-selected={activeTab === index}
+                onClick={() => setActiveTab(index)}
                 className={cn(
-                  'px-3 py-1.5 rounded-t-lg text-sm transition-colors',
-                  activeTab === i ? 'bg-secondary font-medium' : 'hover:bg-secondary/50'
+                  'h-10 min-w-10 flex-shrink-0 rounded-t-lg px-2 text-lg transition-colors',
+                  activeTab === index ? 'bg-secondary font-medium' : 'hover:bg-secondary/50'
                 )}
               >
-                {cat.name}
+                {category.name}
               </button>
             ))}
           </div>
-
-          {/* Emoji grid */}
-          <div className="grid grid-cols-8 gap-0.5 p-2 max-h-36 overflow-y-auto">
-            {EMOJI_CATEGORIES[activeTab].emojis.map((emoji) => (
+          <div className="grid grid-cols-8 gap-1 overflow-y-auto overscroll-contain p-2 sm:grid-cols-9" role="tabpanel" aria-label={EMOJI_CATEGORIES[activeTab].label}>
+            {EMOJI_CATEGORIES[activeTab].emojis.map((emoji, index) => (
               <button
-                key={emoji}
+                key={`${emoji}-${index}`}
+                type="button"
                 onClick={() => {
                   onSelect(emoji);
                   setIsOpen(false);
                 }}
-                className="w-8 h-8 flex items-center justify-center text-lg hover:bg-secondary rounded-lg transition-colors"
+                className="flex aspect-square min-h-9 min-w-9 items-center justify-center rounded-lg text-xl transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={`Insert ${emoji}`}
               >
                 {emoji}
               </button>

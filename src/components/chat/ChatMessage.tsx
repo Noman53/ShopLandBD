@@ -3,6 +3,8 @@ import { User, MessageCircle, Headphones, Check, CheckCheck } from 'lucide-react
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { format } from 'date-fns';
+import ChatAttachment from '@/components/chat/chatAttachment';
+import { parseChatAttachment } from '@/components/chat/chatAttachmentUtils';
 
 interface ChatMessageProps {
   id: string;
@@ -10,11 +12,27 @@ interface ChatMessageProps {
   content: string;
   created_at: string;
   is_read: boolean;
+  conversationId?: string;
+  guestToken?: string | null;
+  isGuest?: boolean;
+  unavailableAttachmentLabel?: string;
+  loadingAttachmentLabel?: string;
 }
 
-export default function ChatMessage({ sender_type, content, created_at, is_read }: ChatMessageProps) {
+export default function ChatMessage({
+  sender_type,
+  content,
+  created_at,
+  is_read,
+  conversationId,
+  guestToken,
+  isGuest,
+  unavailableAttachmentLabel,
+  loadingAttachmentLabel,
+}: ChatMessageProps) {
   const isCustomer = sender_type === 'customer';
   const timeStr = format(new Date(created_at), 'h:mm a');
+  const attachment = parseChatAttachment(content);
 
   return (
     <div className={cn('flex gap-2', isCustomer && 'flex-row-reverse')}>
@@ -43,7 +61,16 @@ export default function ChatMessage({ sender_type, content, created_at, is_read 
               : 'bg-secondary rounded-tl-sm'
           )}
         >
-          {isCustomer ? (
+          {attachment && (conversationId || attachment.path.split('/')[0]) ? (
+            <ChatAttachment
+              attachment={attachment}
+              conversationId={conversationId || attachment.path.split('/')[0]}
+              guestToken={guestToken}
+              isGuest={isGuest}
+              unavailableLabel={unavailableAttachmentLabel}
+              loadingLabel={loadingAttachmentLabel}
+            />
+          ) : isCustomer ? (
             <p>{content}</p>
           ) : (
             <div className="prose prose-sm max-w-none dark:prose-invert [&>p]:m-0 [&>ul]:mt-1 [&>ol]:mt-1">

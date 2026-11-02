@@ -5,6 +5,23 @@ import { getCorsHeaders, isAllowedOrigin } from "../_shared/cors.ts";
 const MAX_MESSAGE_LENGTH = 4000;
 const MAX_CONTEXT_MESSAGES = 30;
 const MAX_CONTEXT_LENGTH = 24000;
+const MAX_CHAT_ATTACHMENT_SIZE = 10 * 1024 * 1024;
+const CHAT_ATTACHMENT_TYPES: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+  "image/avif": "avif",
+  "image/heic": "heic",
+  "image/heif": "heif",
+  "application/pdf": "pdf",
+  "text/plain": "txt",
+  "text/csv": "csv",
+  "application/msword": "doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+  "application/vnd.ms-excel": "xls",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+};
 const ORDER_ID_PATTERN = /\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\b/i;
 const SHORT_ORDER_ID_PATTERN = /(?:#|order(?:\s*(?:id|number|no\.?))?|অর্ডার(?:\s*(?:আইডি|নম্বর|নং))?)\s*#?([0-9a-f]{8})\b/i;
 const BD_PHONE_PATTERN = /(?:\+?880[\s-]?1[3-9](?:[\s-]?\d){8}|01[3-9](?:[\s-]?\d){8})/;
@@ -406,6 +423,51 @@ async function handleRequest(req: Request) {
 
     if (guestToken && conversation.user_id !== null) {
       return jsonResponse({ error: "Guest access has expired" }, 403, corsHeaders);
+    }
+
+    if (action === "createChatAttachmentUpload") {
+      if (!["ai", "live", "waiting_reply"].includes(conversation.status)) {
+        return jsonResponse({ error: "This conversation is closed" }, 409, corsHeaders);
+      }
+      if (!await enforceRateLimit("attachment_upload", 5)) {
+        return jsonResponse({ error: "Too many attachment uploads. Please try again shortly." }, 429, corsHeaders);
+      }
+
+      const contentType = typeof body.contentType === "string" ? body.contentType.toLowerCase() : "";
+      const fileSize = typeof body.fileSize === "number" ? body.fileSize : 0;
+      const extension = CHAT_ATTACHMENT_TYPES[contentType];
+      if (!extension || fileSize <= 0 || fileSize > MAX_CHAT_ATTACHMENT_SIZE) {
+        return jsonResponse({ error: "Unsupported file type or size. Use an image or document up to 10 MB." }, 400, corsHeaders);
+      }
+
+      const path = `${conversationId}/${crypto.randomUUID()}.${extension}`;
+      const { data, error } = await supabase.storage
+        .from("chat-attachments")
+        .createSignedUploadUrl(path, { upsert: false });
+      if (error || !data?.token) {
+        console.error("Could not create a chat attachment upload URL:", error?.message);
+        return jsonResponse({ error: "Could not prepare the attachment upload" }, 500, corsHeaders);
+      }
+      return jsonResponse({ path, token: data.token, contentType }, 200, corsHeaders);
+    }
+
+    if (action === "getChatAttachmentUrl") {
+      const path = typeof body.path === "string" ? body.path : "";
+      if (
+        !path.startsWith(`${conversationId}/`) ||
+        path.split("/").length !== 2 ||
+        !/^[0-9a-f-]{36}\.[a-z0-9]+$/i.test(path.split("/")[1])
+      ) {
+        return jsonResponse({ error: "Invalid attachment path" }, 400, corsHeaders);
+      }
+      const { data, error } = await supabase.storage
+        .from("chat-attachments")
+        .createSignedUrl(path, 10 * 60);
+      if (error || !data?.signedUrl) {
+        console.error("Could not create a chat attachment download URL:", error?.message);
+        return jsonResponse({ error: "Could not open the attachment" }, 404, corsHeaders);
+      }
+      return jsonResponse({ url: data.signedUrl }, 200, corsHeaders);
     }
 
     if (action === "getGuestMessages") {
