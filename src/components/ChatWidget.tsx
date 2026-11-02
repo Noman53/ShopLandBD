@@ -267,6 +267,7 @@ export default function ChatWidget() {
         if (isTyping && waitingForAdmin) {
           adminRespondedRef.current = true;
           setWaitingForAdmin(false);
+          setConversationStatus('live');
           setAdminWaitSeconds(0);
           if (adminWaitTimerRef.current) clearTimeout(adminWaitTimerRef.current);
           if (adminCountdownRef.current) clearInterval(adminCountdownRef.current);
@@ -778,6 +779,7 @@ export default function ChatWidget() {
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
+  const showAdminTyping = adminTyping && conversationStatus === 'live';
 
   return (
     <>
@@ -823,7 +825,7 @@ export default function ChatWidget() {
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <p className="text-[11px] opacity-90 leading-none">
-                    {adminTyping
+                    {showAdminTyping
                       ? t('অ্যাডমিন টাইপ করছেন...', 'Admin is typing...')
                       : isStreaming || isLoading
                       ? t('লিখছে...', 'Typing...')
@@ -957,8 +959,8 @@ export default function ChatWidget() {
             )}
 
             {/* Typing Indicator */}
-            {(isLoading || (adminTyping && !waitingForAdmin)) && (
-              <TypingIndicator isAdmin={adminTyping} />
+            {(isLoading || showAdminTyping) && (
+              <TypingIndicator isAdmin={showAdminTyping} />
             )}
 
             {/* Follow-up Quick Replies */}
